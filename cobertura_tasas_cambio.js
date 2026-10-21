@@ -1,6 +1,8 @@
 // =====================================================================
 //  COBERTURA DEL SUELO Y TASAS DE CAMBIO · REGIÓN CENTRAL DE VERACRUZ
-//  Actividad 3 · Ingeniería en Agronomía
+//  PEI «Matemáticas y Percepción Remota» · EE Matemáticas
+//  Facultad de Ciencias Agrícolas, Universidad Veracruzana
+//  Docente responsable: Dr. Gustavo Ortiz Hernández
 //  1) Abre https://code.earthengine.google.com/  2) Pega TODO este código
 //  3) Pulsa Run UNA sola vez  4) Trabaja con el panel de la izquierda.
 //  Datos: Copernicus Sentinel-2 SR Harmonized + Cloud Score+ (Google).
@@ -179,7 +181,10 @@ function enlace(texto) {
 }
 
 panel.add(ui.Label('Cobertura del suelo y tasas de cambio', {fontWeight: 'bold', fontSize: '19px', margin: '4px 0 0 0'}));
-panel.add(ui.Label('Región central de Veracruz · Sentinel-2 · Random Forest', ESTILO_NOTA));
+panel.add(ui.Label('PEI «Matemáticas y Percepción Remota»\n' +
+  'Experiencia educativa: Matemáticas\n' +
+  'Facultad de Ciencias Agrícolas, Universidad Veracruzana\n' +
+  'Docente responsable: Dr. Gustavo Ortiz Hernández', ESTILO_NOTA));
 var estado = ui.Label('Elige tu zona y tus años, y pulsa «Cargar imágenes».', {fontSize: '13px', whiteSpace: 'pre-wrap'});
 panel.add(estado);
 
@@ -440,7 +445,7 @@ function respaldar() {
     cajaRespaldo.setValue(texto);
     cajaRespaldo.style().set('shown', true);
     notaRespaldo.setValue('Haz clic en el cuadro de abajo, pulsa Ctrl+A y Ctrl+C, y pégalo en un archivo de texto. ' +
-      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» (línea 16) y pulsa Run.');
+      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» (línea 18) y pulsa Run.');
     print('RESPALDO DE POLÍGONOS (' + datos.poligonos.length + ' polígonos)', texto);
     avisar('Respaldo listo: cópialo del cuadro que apareció bajo el botón «Respaldar polígonos».');
   });
@@ -449,6 +454,14 @@ function respaldar() {
 function redondear(x) {
   if (typeof x === 'number') return Math.round(x * 1e6) / 1e6;
   return x.map(redondear);
+}
+
+function aclarar(hex) {
+  // Mezcla el color con blanco (45 % color) para distinguir el año inicial
+  return [0, 2, 4].map(function(k) {
+    var v = Math.round(parseInt(hex.substr(k, 2), 16) * 0.45 + 255 * 0.55);
+    return ('0' + v.toString(16)).slice(-2);
+  }).join('');
 }
 
 function formato(x, dec) {
@@ -545,6 +558,52 @@ function mostrarFirmas(r) {
   var tabla = ui.Chart({cols: tcols, rows: tfilas}, 'Table', {allowHtml: false});
   panelFirmas.add(ui.Label('Tabla de datos: reflectancia media ± desviación estándar', ESTILO_NOTA));
   panelFirmas.add(tabla);
+
+  // Píxeles de entrenamiento seleccionados por clase (todos los de tus polígonos)
+  var pcols = [{label: 'Clase', type: 'string'}, {label: 'Polígonos', type: 'number'},
+               {label: 'Píxeles seleccionados', type: 'number'}, {label: 'Superficie (ha)', type: 'number'}];
+  var pfilas = CLASES.map(function(c, i) {
+    var a = r['ini' + i].B2_count || 0, b = r['fin' + i].B2_count || 0;
+    var n = Math.max(a, b);
+    return {c: [{v: c.nombre}, {v: capas[i].geometries().length()},
+      {v: n, f: a === b ? formato(n, 0) : formato(a, 0) + ' (' + S.ini + ') / ' + formato(b, 0) + ' (' + S.fin + ')'},
+      {v: n * 0.01, f: formato(n * 0.01, 2)}]};
+  });
+  panelFirmas.add(ui.Label('Píxeles de entrenamiento por clase (todos los píxeles dentro de tus polígonos; ' +
+    'cada píxel mide 10 m × 10 m = 0.01 ha). Anótalos en tu cuadernillo.', ESTILO_NOTA));
+  panelFirmas.add(ui.Chart({cols: pcols, rows: pfilas}, 'Table'));
+
+  // Varianza de la reflectancia (desviación estándar al cuadrado) por banda y clase
+  var vcols = [{label: 'Banda', type: 'string'}];
+  var vseries = {};
+  var vk = 0;
+  CLASES.forEach(function(c) {
+    periodos.forEach(function(p, j) {
+      vcols.push({label: c.corto + ' ' + p[1], type: 'number'});
+      vseries[vk++] = {color: '#' + (j ? c.color : aclarar(c.color))};
+    });
+  });
+  var vfilas = BANDAS.map(function(b, bi) {
+    var celdas = [{v: NOMBRES_BANDA[bi]}];
+    CLASES.forEach(function(c, i) {
+      periodos.forEach(function(p) {
+        var s = r[p[0] + i][b + '_stdDev'];
+        celdas.push({v: s === null || s === undefined ? null : Math.round(s * s * 1e6) / 1e3});
+      });
+    });
+    return {c: celdas};
+  });
+  var gvar = ui.Chart({cols: vcols, rows: vfilas}, 'ColumnChart', {
+    title: 'Varianza de la reflectancia por banda (× 1000) · ' + ZONAS[S.zona].nombre,
+    vAxis: {title: 'Varianza × 1000', viewWindow: {min: 0}},
+    series: vseries, legend: {position: 'top', maxLines: 3},
+    chartArea: {left: 50, top: 60, width: '86%', height: '60%'}
+  });
+  gvar.style().set({height: '360px'});
+  panelFirmas.add(ui.Label('Varianza: qué tan diferentes son entre sí los píxeles de una clase ' +
+    '(tono claro = ' + S.ini + ', intenso = ' + S.fin + '). Barras altas = clase heterogénea, más difícil de clasificar.', ESTILO_NOTA));
+  panelFirmas.add(gvar);
+
   if (pocos.length) {
     avisar('Firmas listas, pero hay pocos píxeles en: ' + pocos.join(', ') +
       '. Dibuja polígonos más grandes o más numerosos.', true);

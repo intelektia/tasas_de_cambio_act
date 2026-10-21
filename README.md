@@ -1,5 +1,8 @@
 # Cobertura del suelo y tasas de cambio · Actividad 3
 
+Proyecto Educativo Innovador (PEI) «Matemáticas y Percepción Remota» · Experiencia educativa Matemáticas · Facultad de Ciencias Agrícolas, Universidad Veracruzana.
+Responsable: Dr. Gustavo Ortiz Hernández. Integrantes: Dra. Luz Amelia Sánchez Landero, Dr. Gustavo Ortiz Hernández y Dra. Dora Trejo Aguilar.
+
 Práctica guiada para Ingeniería en Agronomía: estimar la cobertura del suelo (vegetación, suelo desnudo o construido y agua) en dos años con Sentinel-2 y Google Earth Engine, y calcular a mano su tasa de cambio en una de cinco zonas de la región central de Veracruz.
 
 **Tutorial y cuadernillo:** https://intelektia.github.io/tasas_de_cambio_act/
@@ -10,6 +13,7 @@ Práctica guiada para Ingeniería en Agronomía: estimar la cobertura del suelo 
 |---|---|
 | `index.html` | Tutorial paso a paso y cuadernillo: registro del equipo, subida de imágenes, preguntas, cálculo verificado de diferencias y tasas, gráficas y generación del reporte PDF (máx. 7 páginas). |
 | `cobertura_tasas_cambio.js` | Script para el Code Editor de Earth Engine (también va incluido en `index.html` con botón «Copiar código»). |
+| `logos/` | Logosímbolo de la Universidad Veracruzana (Wikimedia Commons, «Logo-UV.jpg», CC BY-SA 4.0) y logo de la Facultad de Ciencias Agrícolas Xalapa (proporcionado por el docente). |
 | `actividad-3-eminus.txt` | Texto sugerido para crear la actividad en Eminus. |
 
 ## Método (resumen)

@@ -114,6 +114,13 @@ input.numin{text-align:right;font-variant-numeric:tabular-nums;max-width:170px}
 .mock .m .t{position:absolute;top:6px;background:#fff;color:#222;padding:1px 6px;border-radius:3px;font-weight:700;font-size:11px}
 footer.navbar{position:fixed;left:250px;right:0;bottom:0;background:#0d1929;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:9px 20px;z-index:15;gap:10px}
 footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
+.hlogo{height:38px;width:auto;background:#fff;border-radius:6px;padding:2px 4px;vertical-align:middle;margin-right:10px}
+header .brand{display:flex;align-items:center}
+.credits{display:flex;gap:18px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 20px;margin:18px 0;font-size:15px;line-height:1.55}
+.credits .logos{display:flex;gap:10px;flex:none}
+.credits .logos img{height:84px;width:auto;background:#fff;border-radius:8px;padding:4px}
+.credits .muted{color:var(--muted)}
+@media(max-width:700px){.credits{flex-direction:column;align-items:flex-start}}
 #toast{position:fixed;right:18px;bottom:70px;background:#1f3b33;border:1px solid var(--mint);color:var(--text);padding:10px 16px;border-radius:10px;font-size:14px;z-index:50;max-width:380px;display:none}
 .zonecards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:14px 0}
 .zonecards article{margin:0;padding:14px 16px;font-size:14.5px;line-height:1.5}
@@ -124,7 +131,7 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
 </head>
 <body>
 <header>
-  <strong>AGRONOMÍA · COBERTURA Y CAMBIO</strong>
+  <div class="brand"><img class="hlogo" src="logos/uv.jpg" alt="Universidad Veracruzana"><strong>MATEMÁTICAS Y PERCEPCIÓN REMOTA · ACTIVIDAD 3</strong></div>
   <div class="tools">
     <span id="saveState" aria-live="polite"></span>
     <button class="secondary" id="btnExport" title="Descarga un archivo con todo tu avance">💾 Guardar avance (.json)</button>
@@ -137,7 +144,7 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
 
 <!-- ============================================================ INICIO -->
 <section class="lesson" id="inicio" data-title="Inicio">
-  <div class="eyebrow">Actividad 3 · Ingeniería en Agronomía</div>
+  <div class="eyebrow">PEI «Matemáticas y Percepción Remota» · Actividad 3</div>
   <h1>¿Cuánto cambió el paisaje?</h1>
   <p class="lead">Con imágenes Sentinel-2 y Google Earth Engine estimarás automáticamente la cobertura del suelo en dos años distintos, en una zona de la región central de Veracruz, y calcularás <b>a mano</b> cuánto creció o disminuyó cada clase.</p>
   <div class="hero">
@@ -153,6 +160,13 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
     <article><b>Lo que entregarás</b><p>Un reporte PDF de máximo 7 páginas generado con el botón del capítulo 11, listo para publicarse.</p><span class="pill">1 PDF por equipo</span></article>
   </div>
   <div class="callout"><b>Tu avance se guarda solo</b> en este navegador y en esta computadora. Si cambiarán de computadora, usen <span class="ui">💾 Guardar avance (.json)</span> y luego <span class="ui">📂 Cargar avance</span> en la otra.</div>
+  <div class="credits">
+    <div class="logos"><img src="logos/uv.jpg" alt="Universidad Veracruzana"><img src="logos/facultad.png" alt="Facultad de Ciencias Agrícolas" onerror="this.remove()"></div>
+    <div><b>Proyecto Educativo Innovador (PEI) «Matemáticas y Percepción Remota»</b><br>
+    Experiencia educativa: Matemáticas · Facultad de Ciencias Agrícolas · Universidad Veracruzana<br>
+    <span class="muted">Responsable:</span> Dr. Gustavo Ortiz Hernández<br>
+    <span class="muted">Integrantes:</span> Dra. Luz Amelia Sánchez Landero, Dr. Gustavo Ortiz Hernández y Dra. Dora Trejo Aguilar</div>
+  </div>
   <p>Trabajo en equipos de 2 a 4 personas. Una persona opera Earth Engine con su cuenta; otra registra datos y capturas; otra verifica los cálculos; todas redactan. Cada integrante debe poder explicar cómo se calculó la tasa de cambio.</p>
   <p><button data-go="conceptos">Comenzar →</button></p>
 </section>
@@ -185,6 +199,10 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
       </table>
     </div>
   </div>
+  <h2>Media y varianza: ¿qué tan parecidos son los píxeles de una clase?</h2>
+  <p>La firma espectral usa la <b>media</b> de cada banda. Pero dos clases con medias distintas pueden confundirse si sus píxeles son muy variados. La <b>varianza</b> mide esa dispersión alrededor de la media:</p>
+  <div class="formula">s² = Σ (x<sub>i</sub> − x̄)² ÷ n<small>x<sub>i</sub>: reflectancia de cada píxel · x̄: media de la clase · n: número de píxeles · s = √s² es la desviación estándar</small></div>
+  <p>Una clase <b>homogénea</b> (por ejemplo, agua profunda) tiene varianza pequeña; una <b>heterogénea</b> (suelo/construido: techos, calles, arena, parcelas) tiene varianza grande y es más difícil de clasificar. Earth Engine te mostrará una gráfica con la varianza de cada clase en cada banda.</p>
   <h2>Un año en una sola imagen</h2>
   <p>Un solo día puede tener nubes. Por eso, para cada año el programa reúne <b>todas</b> las escenas Sentinel-2 de enero a diciembre, elimina nubes y sombras con el producto <i>Cloud Score+</i> y calcula, píxel por píxel y banda por banda, la <b>mediana</b>: el valor típico del año. Usamos la mediana y no la media porque una nube que se haya escapado del filtro casi no la mueve.</p>
   <h2>Clasificación supervisada con Random Forest</h2>
@@ -332,6 +350,8 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
     <li>La <b>tabla</b> muestra la reflectancia media ± desviación estándar y cuántos píxeles se usaron. Si una clase tiene menos de 50 píxeles, el programa te avisará: dibuja polígonos más grandes.</li>
     <li>Descarga la gráfica: pasa el ratón sobre ella y pulsa el ícono <span class="ui">↗</span> (arriba a la derecha). En la ventana nueva elige <span class="ui">Download PNG</span>.</li>
     <li>La tabla: con su ícono <span class="ui">↗</span> descarga el <span class="ui">CSV</span>, o toma una captura de pantalla (<kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Aquí puedes subir cualquiera de las dos.</li>
+    <li>Debajo verás la tabla <span class="ui">Píxeles de entrenamiento por clase</span>: cuántos polígonos y cuántos píxeles seleccionaste de cada clase (todos los píxeles dentro de tus polígonos). Anótalos en el cuadernillo.</li>
+    <li>Después aparece la gráfica de <b>varianza</b> por banda y clase (tono claro = año inicial, intenso = año final). Descárgala con <span class="ui">↗</span> → <span class="ui">Download PNG</span>.</li>
     <li>Guarda también el enlace <span class="ui">⬇ Polígonos de entrenamiento sobre … (PNG)</span> y súbelo en el capítulo 5.</li>
   </ol>
   <div class="callout">¿Qué buscar? La vegetación: poco rojo (B4) y mucho NIR (B8), por la clorofila y la estructura de las hojas. El agua: valores bajos en todo y casi cero en NIR y SWIR. Suelo y construcciones: valores medios a altos que aumentan hacia el SWIR. Si dos clases tienen firmas muy parecidas, el modelo las confundirá.</div>
@@ -340,8 +360,15 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
     <div class="uploads">
       <div class="upload" data-img="firmas"></div>
       <div class="upload" data-img="tablaFirmas" data-csv="1"></div>
+      <div class="upload" data-img="varianza"></div>
     </div>
-    <label class="f" for="f_q3">Pregunta 3 · ¿Cómo eligieron sus polígonos y qué les dicen las firmas espectrales? <small>(¿en qué bandas se separan más las clases? ¿por qué la vegetación sube tanto en el NIR? ¿cambiaron las firmas entre años?)</small></label>
+    <label class="f">Píxeles de entrenamiento seleccionados por clase <small>(tabla «Píxeles de entrenamiento por clase» del panel)</small></label>
+    <div class="grid3" style="margin:4px 0">
+      <div><label class="f" for="f_px0" style="font-weight:400"><span class="swatch" style="background:var(--veg)"></span>Vegetación</label><input type="number" min="0" id="f_px0" data-npx="0" class="numin"></div>
+      <div><label class="f" for="f_px1" style="font-weight:400"><span class="swatch" style="background:var(--soil)"></span>Suelo desnudo o construido</label><input type="number" min="0" id="f_px1" data-npx="1" class="numin"></div>
+      <div><label class="f" for="f_px2" style="font-weight:400"><span class="swatch" style="background:var(--water)"></span>Agua</label><input type="number" min="0" id="f_px2" data-npx="2" class="numin"></div>
+    </div>
+    <label class="f" for="f_q3">Pregunta 3 · ¿Cómo eligieron sus polígonos y qué les dicen las firmas espectrales y la varianza? <small>(¿en qué bandas se separan más las clases? ¿qué clase tiene mayor varianza y por qué sería más difícil de clasificar?)</small></label>
     <textarea id="f_q3" data-field="q3" maxlength="700"></textarea><div class="count" data-count="q3"></div>
   </div>
 </section>
@@ -394,6 +421,13 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
     <p id="calcFalta" style="color:var(--gold);font-size:14px"></p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button id="btnVerificar">✔ Verificar mis cálculos</button><span id="verifResumen" class="st"></span></div>
     <div id="pistas"></div>
+    <details style="margin-top:14px"><summary>Opción para docente</summary>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+        <input type="password" id="pwDocente" placeholder="Contraseña" autocomplete="off" style="max-width:170px" aria-label="Contraseña de docente">
+        <button class="secondary" id="btnAutocompletar" type="button">Autocompletar valores correctos</button>
+        <span id="pwMsg" class="st"></span>
+      </div>
+    </details>
     <div id="graficasCambio" class="charts" hidden>
       <figure><div id="svgAreas"></div></figure>
       <figure><div id="svgCambio"></div></figure>
@@ -495,9 +529,17 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
 </section>
 
 <!-- ============================================================ REFERENCIAS -->
-<section class="lesson" id="referencias" data-title="Referencias">
+<section class="lesson" id="referencias" data-title="Créditos y referencias">
   <div class="eyebrow">Fuentes</div>
-  <h1>Herramientas y referencias</h1>
+  <h1>Créditos y referencias</h1>
+  <div class="credits">
+    <div class="logos"><img src="logos/uv.jpg" alt="Universidad Veracruzana"><img src="logos/facultad.png" alt="Facultad de Ciencias Agrícolas" onerror="this.remove()"></div>
+    <div><b>Proyecto Educativo Innovador (PEI) «Matemáticas y Percepción Remota»</b><br>
+    Experiencia educativa: Matemáticas · Facultad de Ciencias Agrícolas · Universidad Veracruzana<br>
+    <span class="muted">Responsable:</span> Dr. Gustavo Ortiz Hernández<br>
+    <span class="muted">Integrantes:</span> Dra. Luz Amelia Sánchez Landero, Dr. Gustavo Ortiz Hernández y Dra. Dora Trejo Aguilar</div>
+  </div>
+  <h2>Referencias</h2>
   <ul>
     <li>Breiman, L. (2001). Random Forests. <i>Machine Learning</i>, 45, 5–32.</li>
     <li>Drusch, M. et al. (2012). Sentinel-2: ESA's optical high-resolution mission for GMES operational services. <i>Remote Sensing of Environment</i>, 120, 25–36.</li>
@@ -516,7 +558,9 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
 <script type="text/plain" id="codigoGEE">
 // =====================================================================
 //  COBERTURA DEL SUELO Y TASAS DE CAMBIO · REGIÓN CENTRAL DE VERACRUZ
-//  Actividad 3 · Ingeniería en Agronomía
+//  PEI «Matemáticas y Percepción Remota» · EE Matemáticas
+//  Facultad de Ciencias Agrícolas, Universidad Veracruzana
+//  Docente responsable: Dr. Gustavo Ortiz Hernández
 //  1) Abre https://code.earthengine.google.com/  2) Pega TODO este código
 //  3) Pulsa Run UNA sola vez  4) Trabaja con el panel de la izquierda.
 //  Datos: Copernicus Sentinel-2 SR Harmonized + Cloud Score+ (Google).
@@ -695,7 +739,10 @@ function enlace(texto) {
 }
 
 panel.add(ui.Label('Cobertura del suelo y tasas de cambio', {fontWeight: 'bold', fontSize: '19px', margin: '4px 0 0 0'}));
-panel.add(ui.Label('Región central de Veracruz · Sentinel-2 · Random Forest', ESTILO_NOTA));
+panel.add(ui.Label('PEI «Matemáticas y Percepción Remota»\n' +
+  'Experiencia educativa: Matemáticas\n' +
+  'Facultad de Ciencias Agrícolas, Universidad Veracruzana\n' +
+  'Docente responsable: Dr. Gustavo Ortiz Hernández', ESTILO_NOTA));
 var estado = ui.Label('Elige tu zona y tus años, y pulsa «Cargar imágenes».', {fontSize: '13px', whiteSpace: 'pre-wrap'});
 panel.add(estado);
 
@@ -956,7 +1003,7 @@ function respaldar() {
     cajaRespaldo.setValue(texto);
     cajaRespaldo.style().set('shown', true);
     notaRespaldo.setValue('Haz clic en el cuadro de abajo, pulsa Ctrl+A y Ctrl+C, y pégalo en un archivo de texto. ' +
-      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» (línea 16) y pulsa Run.');
+      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» (línea 18) y pulsa Run.');
     print('RESPALDO DE POLÍGONOS (' + datos.poligonos.length + ' polígonos)', texto);
     avisar('Respaldo listo: cópialo del cuadro que apareció bajo el botón «Respaldar polígonos».');
   });
@@ -965,6 +1012,14 @@ function respaldar() {
 function redondear(x) {
   if (typeof x === 'number') return Math.round(x * 1e6) / 1e6;
   return x.map(redondear);
+}
+
+function aclarar(hex) {
+  // Mezcla el color con blanco (45 % color) para distinguir el año inicial
+  return [0, 2, 4].map(function(k) {
+    var v = Math.round(parseInt(hex.substr(k, 2), 16) * 0.45 + 255 * 0.55);
+    return ('0' + v.toString(16)).slice(-2);
+  }).join('');
 }
 
 function formato(x, dec) {
@@ -1061,6 +1116,52 @@ function mostrarFirmas(r) {
   var tabla = ui.Chart({cols: tcols, rows: tfilas}, 'Table', {allowHtml: false});
   panelFirmas.add(ui.Label('Tabla de datos: reflectancia media ± desviación estándar', ESTILO_NOTA));
   panelFirmas.add(tabla);
+
+  // Píxeles de entrenamiento seleccionados por clase (todos los de tus polígonos)
+  var pcols = [{label: 'Clase', type: 'string'}, {label: 'Polígonos', type: 'number'},
+               {label: 'Píxeles seleccionados', type: 'number'}, {label: 'Superficie (ha)', type: 'number'}];
+  var pfilas = CLASES.map(function(c, i) {
+    var a = r['ini' + i].B2_count || 0, b = r['fin' + i].B2_count || 0;
+    var n = Math.max(a, b);
+    return {c: [{v: c.nombre}, {v: capas[i].geometries().length()},
+      {v: n, f: a === b ? formato(n, 0) : formato(a, 0) + ' (' + S.ini + ') / ' + formato(b, 0) + ' (' + S.fin + ')'},
+      {v: n * 0.01, f: formato(n * 0.01, 2)}]};
+  });
+  panelFirmas.add(ui.Label('Píxeles de entrenamiento por clase (todos los píxeles dentro de tus polígonos; ' +
+    'cada píxel mide 10 m × 10 m = 0.01 ha). Anótalos en tu cuadernillo.', ESTILO_NOTA));
+  panelFirmas.add(ui.Chart({cols: pcols, rows: pfilas}, 'Table'));
+
+  // Varianza de la reflectancia (desviación estándar al cuadrado) por banda y clase
+  var vcols = [{label: 'Banda', type: 'string'}];
+  var vseries = {};
+  var vk = 0;
+  CLASES.forEach(function(c) {
+    periodos.forEach(function(p, j) {
+      vcols.push({label: c.corto + ' ' + p[1], type: 'number'});
+      vseries[vk++] = {color: '#' + (j ? c.color : aclarar(c.color))};
+    });
+  });
+  var vfilas = BANDAS.map(function(b, bi) {
+    var celdas = [{v: NOMBRES_BANDA[bi]}];
+    CLASES.forEach(function(c, i) {
+      periodos.forEach(function(p) {
+        var s = r[p[0] + i][b + '_stdDev'];
+        celdas.push({v: s === null || s === undefined ? null : Math.round(s * s * 1e6) / 1e3});
+      });
+    });
+    return {c: celdas};
+  });
+  var gvar = ui.Chart({cols: vcols, rows: vfilas}, 'ColumnChart', {
+    title: 'Varianza de la reflectancia por banda (× 1000) · ' + ZONAS[S.zona].nombre,
+    vAxis: {title: 'Varianza × 1000', viewWindow: {min: 0}},
+    series: vseries, legend: {position: 'top', maxLines: 3},
+    chartArea: {left: 50, top: 60, width: '86%', height: '60%'}
+  });
+  gvar.style().set({height: '360px'});
+  panelFirmas.add(ui.Label('Varianza: qué tan diferentes son entre sí los píxeles de una clase ' +
+    '(tono claro = ' + S.ini + ', intenso = ' + S.fin + '). Barras altas = clase heterogénea, más difícil de clasificar.', ESTILO_NOTA));
+  panelFirmas.add(gvar);
+
   if (pocos.length) {
     avisar('Firmas listas, pero hay pocos píxeles en: ' + pocos.join(', ') +
       '. Dibuja polígonos más grandes o más numerosos.', true);
@@ -1355,15 +1456,16 @@ const IMGS = {
   cobIni:{t:'Mapa de cobertura · año inicial', h:'PNG del enlace «Cobertura» del año inicial'},
   cobFin:{t:'Mapa de cobertura · año final', h:'PNG del enlace «Cobertura» del año final'},
   evalMatriz:{t:'Matrices de confusión y métricas', h:'Captura de las tablas (opcional)'},
-  evalGrafica:{t:'Gráfica de evaluación', h:'PNG con ↗ (opcional)'}
+  evalGrafica:{t:'Gráfica de evaluación', h:'PNG con ↗ (opcional)'},
+  varianza:{t:'Gráfica de varianza por clase', h:'PNG descargado con el ícono ↗'}
 };
 const ROLES = ['Operación de Earth Engine','Registro de datos y capturas','Verificación de cálculos','Redacción del reporte','Coordinación y revisión'];
 const MIN_TXT = 120;
 
 /* ================================================================ ESTADO */
 const hoy = new Date().toISOString().slice(0,10);
-const DEF = () => ({v:1, equipo:'', integrantes:[{nombre:'',rol:''},{nombre:'',rol:''}], grupo:'', docente:'', fecha:hoy,
-  zona:'', ini:'2019', fin:'2025', npol:['','',''], q1:'', q2:'', q3:'', q4:'', q5:'',
+const DEF = () => ({v:1, equipo:'', integrantes:[{nombre:'',rol:''},{nombre:'',rol:''}], grupo:'', docente:'Dr. Gustavo Ortiz Hernández', fecha:hoy,
+  zona:'', ini:'2019', fin:'2025', npol:['','',''], npx:['','',''], q1:'', q2:'', q3:'', q4:'', q5:'',
   areas:{ini:['','',''], fin:['','','']}, dif:['','',''], pct:['','',''], verificado:false, intentos:0,
   img:{}, csv:null, capitulo:'inicio'});
 let S = DEF();
@@ -1409,7 +1511,7 @@ function fusionar(d){
   const base = DEF();
   const o = Object.assign(base, d||{});
   o.areas = Object.assign(DEF().areas, (d&&d.areas)||{});
-  ['dif','pct','npol'].forEach(k=>{ if(!Array.isArray(o[k])||o[k].length!==3) o[k]=['','','']; });
+  ['dif','pct','npol','npx'].forEach(k=>{ if(!Array.isArray(o[k])||o[k].length!==3) o[k]=['','','']; });
   ['ini','fin'].forEach(k=>{ if(!Array.isArray(o.areas[k])||o.areas[k].length!==3) o.areas[k]=['','','']; });
   if (!Array.isArray(o.integrantes) || !o.integrantes.length) o.integrantes=[{nombre:'',rol:''}];
   if (!o.img || typeof o.img!=='object') o.img={};
@@ -1475,6 +1577,7 @@ $$('[data-field]').forEach(el=>{
   });
 });
 $$('[data-npol]').forEach(el=>el.addEventListener('input', ()=>{ S.npol[+el.dataset.npol]=el.value; guardar(); marcarAvance(); }));
+$$('[data-npx]').forEach(el=>el.addEventListener('input', ()=>{ S.npx[+el.dataset.npx]=el.value; guardar(); marcarAvance(); }));
 
 function actualizarAnios(){
   $$('.yIni').forEach(e=>e.textContent=S.ini); $$('.yFin').forEach(e=>e.textContent=S.fin);
@@ -1602,6 +1705,15 @@ function revisarAreas(){
   return !faltan;
 }
 $('#btnVerificar').onclick = verificar;
+$('#btnAutocompletar').onclick = ()=>{
+  const msg = (t, ok)=>{ $('#pwMsg').textContent = t; $('#pwMsg').className = 'st ' + (ok?'ok':'bad'); };
+  if ($('#pwDocente').value !== '33969') { msg('Contraseña incorrecta.', false); return; }
+  $('#pwDocente').value = '';
+  if (!revisarAreas()) { msg('Primero hay que copiar las seis superficies (capítulo 7).', false); return; }
+  correctos().forEach((c,i)=>{ S.dif[i] = c.dif.toFixed(2); S.pct[i] = isFinite(c.pct) ? c.pct.toFixed(2) : ''; });
+  pintarTablas(); revisarAreas(); verificar();
+  msg('Valores correctos agregados.', true);
+};
 function correctos(){
   const A = areasNum();
   return CLASES.map((c,i)=>{
@@ -1747,6 +1859,8 @@ function requisitos(){
     {cap:'poligonos', t:'Imagen de los polígonos de entrenamiento', ok: img('poligonos')},
     {cap:'firmas', t:'Gráfica de firmas espectrales', ok: img('firmas')},
     {cap:'firmas', t:'Tabla de datos de las firmas', ok: img('tablaFirmas') || !!S.csv},
+    {cap:'firmas', t:'Píxeles de entrenamiento por clase', ok: S.npx.every(x=>num(x)>=1)},
+    {cap:'firmas', t:'Gráfica de varianza por clase', ok: img('varianza')},
     {cap:'firmas', t:`Pregunta 3 (mín. ${MIN_TXT} caracteres)`, ok: txtOK('q3')},
     {cap:'cobertura', t:'Mapas de cobertura (inicio y fin)', ok: img('cobIni') && img('cobFin')},
     {cap:'cobertura', t:'Superficies por clase (6 valores)', ok: areasOK},
@@ -1772,6 +1886,16 @@ function checklist(){
   const falt = R.filter(r=>!r.ok && !r.opt).length;
   $('#pdfMsg').textContent = falt ? `Faltan ${falt} punto(s) obligatorio(s). Haz clic en cada uno para ir al capítulo.` : 'Todo listo para generar el reporte.';
 }
+
+/* ================================================================ LOGOS */
+const LOGOS = {};
+[['uv','logos/uv.jpg'],['facultad','logos/facultad.png']].forEach(([k,src])=>{
+  const im = new Image();
+  im.onload = ()=>{ try { const c=document.createElement('canvas'); c.width=im.naturalWidth; c.height=im.naturalHeight; const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0); LOGOS[k]={src:c.toDataURL('image/jpeg',0.92), w:c.width, h:c.height}; } catch(e){} };
+  im.src = src;
+});
+const PEI = {titulo:'Matemáticas y Percepción Remota', ee:'Matemáticas', facultad:'Facultad de Ciencias Agrícolas', univ:'Universidad Veracruzana',
+  responsable:'Dr. Gustavo Ortiz Hernández', integrantes:'Dra. Luz Amelia Sánchez Landero, Dr. Gustavo Ortiz Hernández y Dra. Dora Trejo Aguilar'};
 
 /* ================================================================ PDF */
 function pdfSafe(s){
@@ -1852,13 +1976,19 @@ function construirPDF(opciones={}){
   const nombres = S.integrantes.filter(m=>m.nombre.trim());
 
   /* ---------- Portada */
-  doc.setFillColor(...OSC); doc.rect(0, 0, PW, 92, 'F');
-  doc.setFillColor(...MENTA); doc.rect(0, 92, PW, 2.2, 'F');
-  fuente('bold', 9.5, [168,232,210]); doc.text('ACTIVIDAD 3 · INGENIERÍA EN AGRONOMÍA', M, 22);
-  fuente('bold', 25, [255,255,255]); doc.text(doc.splitTextToSize('Cobertura del suelo y tasas de cambio', CW), M, 40);
-  fuente('normal', 14, [225,236,245]); doc.text(doc.splitTextToSize(pdfSafe(`${z.nombre}, Veracruz · ${S.ini}-${S.fin}`), CW), M, 62);
-  fuente('normal', 10, [190,210,225]); doc.text(pdfSafe('Estimación con imágenes Sentinel-2, Google Earth Engine y Random Forest'), M, 76);
-  y = 108;
+  // franja institucional
+  let xl = M;
+  ['uv','facultad'].forEach(k=>{ const L=LOGOS[k]; if(!L) return; const h=19, w=L.w*h/L.h; doc.addImage(L.src,'JPEG',xl,5,w,h,undefined,'FAST'); xl += w + 5; });
+  fuente('bold', 9.5, OSC); doc.text(pdfSafe(`${PEI.univ} · ${PEI.facultad}`), PW-M, 11, {align:'right'});
+  fuente('normal', 8.8, GRIS); doc.text(pdfSafe(`Proyecto Educativo Innovador «${PEI.titulo}»`), PW-M, 16, {align:'right'});
+  doc.text(pdfSafe(`Experiencia educativa: ${PEI.ee} · Responsable: ${PEI.responsable}`), PW-M, 21, {align:'right'});
+  doc.setFillColor(...OSC); doc.rect(0, 28, PW, 74, 'F');
+  doc.setFillColor(...MENTA); doc.rect(0, 102, PW, 2.2, 'F');
+  fuente('bold', 9.5, [168,232,210]); doc.text('ACTIVIDAD 3 · EE MATEMÁTICAS · INGENIERÍA EN AGRONOMÍA', M, 41);
+  fuente('bold', 25, [255,255,255]); doc.text(doc.splitTextToSize('Cobertura del suelo y tasas de cambio', CW), M, 57);
+  fuente('normal', 14, [225,236,245]); doc.text(doc.splitTextToSize(pdfSafe(`${z.nombre}, Veracruz · ${S.ini}-${S.fin}`), CW), M, 75);
+  fuente('normal', 10, [190,210,225]); doc.text(pdfSafe('Estimación con imágenes Sentinel-2, Google Earth Engine y Random Forest'), M, 89);
+  y = 116;
   const colIzq = 88;
   fuente('bold', 9, MENTA); doc.text('EQUIPO', M, y); y += 7;
   fuente('bold', 17, OSC); const lEq = doc.splitTextToSize(pdfSafe(S.equipo), colIzq); doc.text(lEq, M, y); y += lEq.length*7 + 3;
@@ -1869,10 +1999,10 @@ function construirPDF(opciones={}){
     if (!v || !String(v).trim()) return; fuente('bold', 9, MENTA); doc.text(k, M, y); y += 5; fuente('normal', 10.5, TXT); doc.text(doc.splitTextToSize(pdfSafe(v), colIzq), M, y); y += 7;
   });
   const portada = S.img.cobFin;
-  let yImg = 108;
+  let yImg = 116;
   if (portada) { const w=CW-colIzq-6, k=Math.min(w/portada.w, 92/portada.h); const x=M+colIzq+6+(w-portada.w*k)/2; doc.addImage(portada.src,'JPEG',x,yImg,portada.w*k,portada.h*k,undefined,'FAST'); doc.setDrawColor(200,205,212); doc.rect(x,yImg,portada.w*k,portada.h*k); fuente('normal',8.5,GRIS); doc.text(pdfSafe(`Cobertura estimada ${S.fin}`), M+colIzq+6, yImg+portada.h*k+5); yImg += portada.h*k + 8; }
   y = Math.max(y, yImg) + 4;
-  const boxH = 50; if (y + boxH > BOT) y = BOT - boxH;
+  const boxH = 46; if (y + boxH > BOT) y = BOT - boxH;
   doc.setFillColor(236,246,242); doc.roundedRect(M, y, CW, boxH, 3, 3, 'F');
   fuente('bold', 10, OSC); doc.text('RESUMEN DE RESULTADOS', M+6, y+8);
   fuente('normal', 10, TXT);
@@ -1892,9 +2022,9 @@ function construirPDF(opciones={}){
   par(S.img.rgbIni, S.img.rgbFin, 78, `Año ${S.ini}`, `Año ${S.fin}`, `Compuestos anuales Sentinel-2 en color verdadero (B4, B3, B2) de ${z.nombre}: ${S.ini} (izquierda) y ${S.fin} (derecha).`);
   /* ---------- 3. Datos y métodos */
   seccion('Datos y métodos');
-  const np = S.npol.map(num), npT = np.reduce((a,b)=>a+b,0);
+  const np = S.npol.map(num), npT = np.reduce((a,b)=>a+b,0), px = S.npx.map(num), pxT = px.reduce((a,b)=>a+b,0);
   parrafo(`Se usaron imágenes Sentinel-2 de nivel 2A (reflectancia de superficie, colección COPERNICUS/S2_SR_HARMONIZED) en Google Earth Engine. Para cada año (${S.ini} y ${S.fin}) se reunieron todas las escenas de enero a diciembre, se enmascararon nubes y sombras con Cloud Score+ (umbral 0.60) y se calculó la mediana de cada píxel, obteniendo un compuesto anual representativo. Se emplearon seis bandas: azul (B2, 490 nm), verde (B3, 560 nm), rojo (B4, 665 nm), infrarrojo cercano (B8, 842 nm) e infrarrojo de onda corta (B11, 1610 nm; B12, 2190 nm), además de los índices NDVI y NDWI calculados con ellas.`);
-  parrafo(`El equipo digitalizó ${npT} polígonos de entrenamiento (${np[0]} de vegetación, ${np[1]} de suelo desnudo o construido y ${np[2]} de agua) en sitios que no cambiaron entre ambos años. Con ellos se calcularon las firmas espectrales medias y se tomaron hasta 500 píxeles por clase: el 70 % entrenó un clasificador Random Forest de 100 árboles para cada año y el 30 % restante se reservó para evaluarlo. La superficie de cada clase se obtuvo sumando el área de sus píxeles (10 m x 10 m = 0.01 ha). Finalmente, el equipo calculó a mano la diferencia y la tasa de cambio de cada clase:`);
+  parrafo(`El equipo digitalizó ${npT} polígonos de entrenamiento en sitios que no cambiaron entre ambos años, con un total de ${fmt(pxT,0)} píxeles seleccionados (${fmt(pxT*0.01,2)} ha): vegetación, ${np[0]} polígonos y ${fmt(px[0],0)} píxeles; suelo desnudo o construido, ${np[1]} y ${fmt(px[1],0)}; agua, ${np[2]} y ${fmt(px[2],0)}. Con ellos se calcularon las firmas espectrales medias y su varianza, y se tomaron hasta 500 píxeles por clase: el 70 % entrenó un clasificador Random Forest de 100 árboles para cada año y el 30 % restante se reservó para evaluarlo. La superficie de cada clase se obtuvo sumando el área de sus píxeles (10 m x 10 m = 0.01 ha). Finalmente, el equipo calculó a mano la diferencia y la tasa de cambio de cada clase:`);
   espacio(16); doc.setFillColor(244,247,249); doc.roundedRect(M, y-1, CW, 14, 2, 2, 'F'); fuente('bold',10.5,OSC);
   doc.text(pdfSafe('Diferencia (ha) = A final - A inicial          Tasa de cambio (%) = (Diferencia / A inicial) x 100'), PW/2, y+7.6, {align:'center'}); y += 18;
   figura(S.img.poligonos, 90, `Polígonos de entrenamiento dibujados por el equipo sobre el compuesto ${S.fin} (verde: vegetación; beige: suelo desnudo o construido; azul: agua).`, 45);
@@ -1907,7 +2037,8 @@ function construirPDF(opciones={}){
   } else {
     figura(S.img.tablaFirmas, 62, 'Tabla de datos de las firmas espectrales: reflectancia media ± desviación estándar por banda y número de píxeles.');
   }
-  voz('Interpretación de las firmas', S.q3);
+  figura(S.img.varianza, 72, 'Varianza de la reflectancia por banda y clase (x 1000; tono claro = año inicial, intenso = año final). Las clases con barras más altas son más heterogéneas y más difíciles de clasificar.', 45);
+  voz('Interpretación de las firmas y la varianza', S.q3);
   /* ---------- 5. Cobertura */
   seccion('Cobertura del suelo estimada', 80);
   par(S.img.cobIni, S.img.cobFin, 80, `Cobertura ${S.ini}`, `Cobertura ${S.fin}`, `Cobertura del suelo estimada con Random Forest para ${S.ini} y ${S.fin}.`, true);
@@ -1941,13 +2072,15 @@ function construirPDF(opciones={}){
    'Gorelick, N. et al. (2017). Google Earth Engine: Planetary-scale geospatial analysis for everyone. Remote Sensing of Environment, 202, 18-27.',
    'Pasquarella, V. J. et al. (2023). Comprehensive quality assessment of optical satellite imagery using weakly supervised video learning (Cloud Score+). CVPR Workshops.'
   ].forEach(r=>parrafo(r, {tam:8.2, col:GRIS, despues:0.4}));
+  espacio(18); y += 2; fuente('bold',10.5,OSC); doc.text('Créditos', M, y); y += 5;
+  parrafo(`Actividad del Proyecto Educativo Innovador (PEI) «${PEI.titulo}», experiencia educativa ${PEI.ee}, ${PEI.facultad}, ${PEI.univ}. Responsable: ${PEI.responsable}. Integrantes: ${PEI.integrantes}.`, {tam:8.2, col:GRIS, despues:0.4});
 
   /* ---------- Encabezados y pies */
   const n = doc.getNumberOfPages();
   for (let p=1; p<=n; p++){
     doc.setPage(p);
     if (p>1) { fuente('normal',8,GRIS); doc.text(pdfSafe(`Cobertura del suelo y tasas de cambio · ${z.nombre}`), M, 12); doc.text(pdfSafe(`Equipo ${S.equipo}`), PW-M, 12, {align:'right'}); doc.setDrawColor(220,225,230); doc.setLineWidth(0.3); doc.line(M, 14.5, PW-M, 14.5); }
-    fuente('normal',8,GRIS); doc.text(`Página ${p} de ${n}`, PW-M, PH-9, {align:'right'}); doc.text('Datos: Copernicus Sentinel-2 (ESA) · Google Earth Engine', M, PH-9);
+    fuente('normal',8,GRIS); doc.text(`Página ${p} de ${n}`, PW-M, PH-9, {align:'right'}); doc.text(pdfSafe(`PEI «${PEI.titulo}» · ${PEI.facultad}, UV`), M, PH-9);
   }
   if (opciones.devolver) return doc;
   const archivo = ('Reporte_A3_' + S.equipo + '_' + z.municipio).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9_-]+/g,'_').slice(0,80) + '.pdf';
@@ -1979,6 +2112,7 @@ $('#btnReset').onclick = async ()=>{
 function pintarTodo(){
   $$('[data-field]').forEach(el=>{ el.value = S[el.dataset.field] ?? ''; });
   $$('[data-npol]').forEach(el=>{ el.value = S.npol[+el.dataset.npol] ?? ''; });
+  $$('[data-npx]').forEach(el=>{ el.value = S.npx[+el.dataset.npx] ?? ''; });
   ['q1','q2','q3','q4','q5'].forEach(contar);
   pintarMiembros(); pintarTablas(); actualizarAnios();
   $$('.upload').forEach(pintarUpload);

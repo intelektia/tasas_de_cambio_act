@@ -839,11 +839,14 @@ function redibujarCapas() {
     capasMapa.push(ui.Map.Layer(S.clasIni, VIS_COB, 'Cobertura ' + S.ini, false));
     capasMapa.push(ui.Map.Layer(S.clasFin, VIS_COB, 'Cobertura ' + S.fin, true));
   }
-  capasMapa.push(ui.Map.Layer(ee.Image().byte().paint(muni, 1, 2), {palette: ['ff66ff']},
+  capasMapa.push(ui.Map.Layer(muni.style({color: 'ff66ff', fillColor: '00000000', width: 2}), {},
     'Límite municipal de ' + z.municipio + ' (referencia)', true, 0.8));
-  capasMapa.push(ui.Map.Layer(ee.Image().byte().paint(ee.FeatureCollection([ee.Feature(S.aoi)]), 1, 3),
-    {palette: ['ffffff']}, 'Área de trabajo'));
+  capasMapa.push(ui.Map.Layer(contornoAOI(), {}, 'Área de trabajo'));
   mapa.layers().reset(capasMapa);
+}
+
+function contornoAOI() {
+  return ee.FeatureCollection([ee.Feature(S.aoi)]).style({color: 'ffffff', fillColor: '00000000', width: 3});
 }
 
 function enlacePNG(etiqueta, imagenVis, destino) {
@@ -888,7 +891,7 @@ function actualizarContadores() {
 function cambioPoligonos(geometria, capa) {
   if (capa) S.ultimaCapa = capa;
   S.confirmarBorrado = false;
-  btnBorrar.setLabel('🗑 Borrar todos');
+  btnBorrar.setLabel('🗑 Borrar todo');
   actualizarContadores();
   if (S.clasIni) {
     avisar('Cambiaste los polígonos: vuelve a calcular las firmas y a clasificar para actualizar resultados.');
@@ -1270,11 +1273,10 @@ function actualizarComparacion() {
       izq = S.clasIni; der = S.clasFin; vis = VIS_COB;
     }
   }
-  var borde = ee.Image().byte().paint(ee.FeatureCollection([ee.Feature(S.aoi)]), 1, 3);
   mapaIzq.layers().reset([ui.Map.Layer(izq, vis, modo + ' ' + S.ini),
-    ui.Map.Layer(borde, {palette: ['ffffff']}, 'Área de trabajo')]);
+    ui.Map.Layer(contornoAOI(), {}, 'Área de trabajo')]);
   mapaDer.layers().reset([ui.Map.Layer(der, vis, modo + ' ' + S.fin),
-    ui.Map.Layer(borde, {palette: ['ffffff']}, 'Área de trabajo')]);
+    ui.Map.Layer(contornoAOI(), {}, 'Área de trabajo')]);
   rotuloIzq.setValue('◀ ' + S.ini + ' · ' + modo);
   rotuloDer.setValue(modo + ' · ' + S.fin + ' ▶');
 }

@@ -83,23 +83,47 @@ var VIS_COB = {min: 0, max: 2, palette: COLORES};
 var S2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED');
 var CSPLUS = ee.ImageCollection('GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED');
 
-function compuestoAnual(anio, region) {
+// Escenas del año sin nubes (Cloud Score+), una sola imagen por fecha.
+function fechasDespejadas(anio, region, bandas) {
   var inicio = ee.Date.fromYMD(anio, 1, 1);
-  var col = S2.filterBounds(region)
+  var base = S2.filterBounds(region)
     .filterDate(inicio, inicio.advance(1, 'year'))
     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 60))
-    .select(BANDAS)
-    .linkCollection(CSPLUS, ['cs_cdf']);
-  // Una sola mediana de píxeles despejados: más ligera para la memoria de Earth Engine.
-  var refl = col.map(function(img) {
-    return img.select(BANDAS).updateMask(img.select('cs_cdf').gte(UMBRAL_CS));
-  }).median()
-    .multiply(0.0001)
-    .setDefaultProjection(PROY)
-    .clip(region);
+    .select(bandas);
+  var col = base.linkCollection(CSPLUS, ['cs_cdf']).map(function(img) {
+    return img.select(bandas).updateMask(img.select('cs_cdf').gte(UMBRAL_CS));
+  });
+  // Varias zonas caen entre dos cuadrantes de Sentinel-2 y cada fecha llega
+  // repetida: se une en un mosaico por día para no contarla dos veces (y así
+  // la mediana usa la mitad de memoria).
+  var dias = base.aggregate_array('system:time_start')
+    .map(function(t) { return ee.Date(t).format('YYYY-MM-dd'); }).distinct();
+  return ee.ImageCollection.fromImages(dias.map(function(d) {
+    var dia = ee.Date(d);
+    return col.filterDate(dia, dia.advance(1, 'day')).mosaic();
+  }));
+}
+
+function mediana(col, region) {
+  return col.median().multiply(0.0001).setDefaultProjection(PROY).clip(region);
+}
+
+// Compuesto completo (6 bandas + índices) para firmas y clasificación.
+function compuestoAnual(anio, region) {
+  var col = fechasDespejadas(anio, region, BANDAS);
+  var refl = mediana(col, region);
   var ndvi = refl.normalizedDifference(['B8', 'B4']).rename('NDVI');
   var ndwi = refl.normalizedDifference(['B3', 'B8']).rename('NDWI');
-  return refl.addBands(ndvi).addBands(ndwi).set('escenas', col.size());
+  return refl.addBands(ndvi).addBands(ndwi).set('fechas', col.size());
+}
+
+// Para ver el mapa sólo se calculan las 3 bandas que se dibujan: cada cuadro
+// del mapa pide menos memoria y aparece menos «memory capacity exceeded».
+function compuestosVista(anio, region) {
+  return {
+    rgb: mediana(fechasDespejadas(anio, region, VIS_RGB.bands), region),
+    falso: mediana(fechasDespejadas(anio, region, VIS_FALSO.bands), region)
+  };
 }
 
 // ---------------------------------------------------------------------
@@ -107,7 +131,7 @@ function compuestoAnual(anio, region) {
 // ---------------------------------------------------------------------
 var S = {
   cargado: false, zona: null, aoi: null, ini: null, fin: null,
-  compIni: null, compFin: null, clasIni: null, clasFin: null,
+  compIni: null, compFin: null, vIni: null, vFin: null, clasIni: null, clasFin: null,
   valIni: null, valFin: null, ocupado: false, comparando: false,
   ultimaCapa: null, confirmarBorrado: false
 };
@@ -143,6 +167,13 @@ var aviso = ui.Label('', {position: 'top-center', shown: false, padding: '6px 10
   backgroundColor: '#fff8d6', fontSize: '13px', whiteSpace: 'pre-wrap'});
 mapa.add(aviso);
 
+// Botón para volver al área de trabajo si te pierdes en el mapa
+function botonCentrar(posicion) {
+  return ui.Button({label: '🎯 Centrar mi zona', onClick: function() { centrarZona(); },
+    style: {position: posicion, padding: '0', margin: '6px'}});
+}
+mapa.add(botonCentrar('top-left'));
+
 // Mapas para la comparación con cortina (inicio | fin)
 var mapaIzq = ui.Map();
 var mapaDer = ui.Map();
@@ -153,6 +184,7 @@ var mapaDer = ui.Map();
 var rotuloIzq = ui.Label('', {position: 'top-left', fontWeight: 'bold', padding: '4px 8px'});
 var rotuloDer = ui.Label('', {position: 'top-right', fontWeight: 'bold', padding: '4px 8px'});
 mapaIzq.add(rotuloIzq);
+mapaIzq.add(botonCentrar('bottom-left'));
 mapaDer.add(rotuloDer);
 var enlaceMapas = ui.Map.Linker([mapaIzq, mapaDer]);
 var cortina = ui.SplitPanel({firstPanel: mapaIzq, secondPanel: mapaDer,
@@ -172,8 +204,44 @@ function avisar(texto, esError) {
   aviso.style().set({shown: true, backgroundColor: esError ? '#ffe3e3' : '#fff8d6'});
 }
 
+// Botones y selectores que se bloquean mientras Earth Engine calcula
+var CONTROLES = [];
+function control(w) {
+  CONTROLES.push(w);
+  return w;
+}
+
 function boton(texto, accion) {
-  return ui.Button({label: texto, onClick: accion, style: {stretch: 'horizontal'}});
+  return control(ui.Button({label: texto, onClick: accion, style: {stretch: 'horizontal'}}));
+}
+
+// Reloj de arena: mientras Earth Engine trabaja, el botón pulsado cuenta los
+// segundos y los demás quedan bloqueados para que no se encimen los cálculos.
+var TRABAJO = {reloj: null, boton: null, etiqueta: '', tarea: '', inicio: 0};
+
+function ocupar(btn, tarea) {
+  S.ocupado = true;
+  TRABAJO.boton = btn;
+  TRABAJO.etiqueta = btn.getLabel();
+  TRABAJO.tarea = tarea;
+  TRABAJO.inicio = Date.now();
+  CONTROLES.forEach(function(w) { w.setDisabled(true); });
+  marcarTiempo();
+  TRABAJO.reloj = ui.util.setInterval(marcarTiempo, 1000);
+}
+
+function marcarTiempo() {
+  var s = Math.floor((Date.now() - TRABAJO.inicio) / 1000);
+  var icono = s % 2 ? '⌛' : '⏳';
+  TRABAJO.boton.setLabel(icono + ' Trabajando… ' + s + ' s');
+  avisar(icono + ' ' + TRABAJO.tarea + ' (' + s + ' s)\nEspera a que termine; no pulses otros botones.');
+}
+
+function liberar() {
+  ui.util.clearTimeout(TRABAJO.reloj);
+  S.ocupado = false;
+  TRABAJO.boton.setLabel(TRABAJO.etiqueta);
+  CONTROLES.forEach(function(w) { w.setDisabled(false); });
 }
 
 function enlace(texto) {
@@ -190,23 +258,23 @@ panel.add(estado);
 
 // --- Paso 1
 panel.add(ui.Label('1 · Zona de trabajo y años', ESTILO_PASO));
-var selZona = ui.Select({
+var selZona = control(ui.Select({
   items: ZONAS.map(function(z, i) { return {label: (i + 1) + '. ' + z.nombre, value: String(i)}; }),
   value: '0', style: {stretch: 'horizontal'}
-});
+}));
 panel.add(selZona);
-var selIni = ui.Select({items: ANIOS_INICIO, value: '2019'});
-var selFin = ui.Select({items: ANIOS_FIN, value: '2025'});
+var selIni = control(ui.Select({items: ANIOS_INICIO, value: '2019'}));
+var selFin = control(ui.Select({items: ANIOS_FIN, value: '2025'}));
 panel.add(ui.Panel([ui.Label('Año inicial', {margin: '14px 4px 0 8px'}), selIni,
                     ui.Label('Año final', {margin: '14px 4px 0 8px'}), selFin],
                    ui.Panel.Layout.flow('horizontal')));
-panel.add(boton('▶ Cargar imágenes', function() { cargar(); }));
+var btnCargar = boton('▶ Cargar imágenes', function() { cargar(); });
+panel.add(btnCargar);
 var infoZona = ui.Label('', ESTILO_NOTA);
 panel.add(infoZona);
-var selComparar = ui.Select({items: ['Color verdadero', 'Falso color', 'Cobertura'], value: 'Color verdadero',
-  onChange: function() { if (S.comparando) actualizarComparacion(); }});
-var btnComparar = ui.Button({label: '⇆ Comparar inicio | fin (cortina)', onClick: function() { alternarComparacion(); },
-  style: {stretch: 'horizontal'}});
+var selComparar = control(ui.Select({items: ['Color verdadero', 'Falso color', 'Cobertura'], value: 'Color verdadero',
+  onChange: function() { if (S.comparando) actualizarComparacion(); }}));
+var btnComparar = boton('⇆ Comparar inicio | fin (cortina)', function() { alternarComparacion(); });
 panel.add(ui.Panel([selComparar, btnComparar], ui.Panel.Layout.flow('horizontal')));
 var descargasImg = ui.Panel();
 panel.add(descargasImg);
@@ -222,19 +290,20 @@ CLASES.forEach(function(c, i) {
   contadores.push(contador);
   panel.add(ui.Panel([
     ui.Label('', {backgroundColor: '#' + c.color, padding: '10px', margin: '10px 4px 0 0'}),
-    ui.Button({label: 'Dibujar: ' + c.corto, onClick: function() { dibujar(i); }, style: {width: '230px'}}),
+    control(ui.Button({label: 'Dibujar: ' + c.corto, onClick: function() { dibujar(i); }, style: {width: '230px'}})),
     contador
   ], ui.Panel.Layout.flow('horizontal')));
 });
-var btnBorrar = ui.Button({label: '🗑 Borrar todo', onClick: function() { borrarTodo(); }});
+var btnBorrar = control(ui.Button({label: '🗑 Borrar todo', onClick: function() { borrarTodo(); }}));
 panel.add(ui.Panel([
-  ui.Button({label: '⏹ Terminar', onClick: function() { terminarDibujo(); }}),
-  ui.Button({label: '↶ Deshacer', onClick: function() { deshacer(); }}),
+  control(ui.Button({label: '⏹ Terminar', onClick: function() { terminarDibujo(); }})),
+  control(ui.Button({label: '↶ Deshacer', onClick: function() { deshacer(); }})),
   btnBorrar
 ], ui.Panel.Layout.flow('horizontal')));
 var pistas = ui.Label('', ESTILO_NOTA);
 panel.add(pistas);
-panel.add(boton('💾 Respaldar polígonos', function() { respaldar(); }));
+var btnRespaldar = boton('💾 Respaldar polígonos', function() { respaldar(); });
+panel.add(btnRespaldar);
 var cajaRespaldo = ui.Textbox({style: {stretch: 'horizontal', shown: false}});
 var notaRespaldo = ui.Label('', ESTILO_NOTA);
 panel.add(notaRespaldo);
@@ -242,20 +311,23 @@ panel.add(cajaRespaldo);
 
 // --- Paso 3
 panel.add(ui.Label('3 · Firmas espectrales', ESTILO_PASO));
-panel.add(boton('📈 Calcular firmas espectrales', function() { calcularFirmas(); }));
+var btnFirmas = boton('📈 Calcular firmas espectrales', function() { calcularFirmas(); });
+panel.add(btnFirmas);
 var panelFirmas = ui.Panel();
 panel.add(panelFirmas);
 
 // --- Paso 4
 panel.add(ui.Label('4 · Cobertura estimada y superficies', ESTILO_PASO));
-panel.add(boton('🗺 Clasificar inicio y fin', function() { clasificar(); }));
+var btnClasificar = boton('🗺 Clasificar inicio y fin', function() { clasificar(); });
+panel.add(btnClasificar);
 var panelCobertura = ui.Panel();
 panel.add(panelCobertura);
 
 // --- Paso 5
 panel.add(ui.Label('5 · Evaluación (opcional)', ESTILO_PASO));
 panel.add(ui.Label('Usa el 30 % de los píxeles de tus polígonos que el modelo NO vio al entrenar.', ESTILO_NOTA));
-panel.add(boton('✅ Evaluar exactitud', function() { evaluar(); }));
+var btnEvaluar = boton('✅ Evaluar exactitud', function() { evaluar(); });
+panel.add(btnEvaluar);
 var panelEvaluacion = ui.Panel();
 panel.add(panelEvaluacion);
 
@@ -271,9 +343,9 @@ ui.root.add(mapa);
 // ---------------------------------------------------------------------
 // 6. FUNCIONES DE LA INTERFAZ
 // ---------------------------------------------------------------------
-function cargar() {
+function cargar(mensajeExtra) {
   if (S.ocupado) { avisar('Espera a que termine el cálculo anterior.'); return; }
-  if (S.comparando) alternarComparacion();
+  verMapa(false);
   var iz = parseInt(selZona.getValue(), 10);
   if (S.zona !== null && S.zona !== iz && totalPoligonos() > 0) {
     capas.forEach(function(capa) { capa.geometries().reset([]); });
@@ -286,6 +358,8 @@ function cargar() {
   S.aoi = ee.Geometry.Rectangle(z.caja, null, false);
   S.compIni = compuestoAnual(S.ini, S.aoi);
   S.compFin = compuestoAnual(S.fin, S.aoi);
+  S.vIni = compuestosVista(S.ini, S.aoi);
+  S.vFin = compuestosVista(S.fin, S.aoi);
   S.clasIni = S.clasFin = S.valIni = S.valFin = null;
   S.cargado = true;
   panelFirmas.clear();
@@ -293,36 +367,42 @@ function cargar() {
   panelEvaluacion.clear();
   pistas.setValue('Sugerencias para ' + z.nombre + ': ' + z.pistas);
   redibujarCapas();
-  mapa.centerObject(S.aoi, 13);
+  centrarZona();
 
-  infoZona.setValue('Calculando número de escenas y área...');
+  ocupar(btnCargar, 'Preparando las imágenes ' + S.ini + ' y ' + S.fin);
+  infoZona.setValue('Contando fechas con imagen y calculando el área...');
   ee.Dictionary({
-    ini: S.compIni.get('escenas'),
-    fin: S.compFin.get('escenas'),
+    ini: S.compIni.get('fechas'),
+    fin: S.compFin.get('fechas'),
     ha: S.aoi.area(1).divide(10000)
   }).evaluate(function(r, err) {
-    if (err) { infoZona.setValue('Error: ' + err); return; }
+    liberar();
+    if (err) {
+      infoZona.setValue('Error: ' + err);
+      avisar('No se pudieron preparar las imágenes: ' + err + '\nEspera un minuto y vuelve a pulsar «Cargar imágenes».', true);
+      return;
+    }
     infoZona.setValue(z.nombre + ' · área de trabajo ≈ ' + formato(r.ha, 0) + ' ha\n' +
-      'Compuesto ' + S.ini + ': mediana de ' + r.ini + ' escenas · ' +
-      'Compuesto ' + S.fin + ': mediana de ' + r.fin + ' escenas');
+      'Compuesto ' + S.ini + ': mediana de ' + r.ini + ' fechas · ' +
+      'Compuesto ' + S.fin + ': mediana de ' + r.fin + ' fechas');
+    avisar((mensajeExtra || '') + 'Imágenes ' + S.ini + ' y ' + S.fin + ' cargadas (pueden tardar unos segundos en verse).\n' +
+      'Compara ambos años con la cortina y luego dibuja tus polígonos (paso 2).');
   });
 
   descargasImg.clear();
   descargasImg.add(ui.Label('Imágenes PNG para tu reporte (clic → se abre en otra pestaña → guardar). Pueden tardar hasta 1-2 min:', ESTILO_NOTA));
-  enlacePNG('Color verdadero ' + S.ini, S.compIni.visualize(VIS_RGB), descargasImg);
-  enlacePNG('Color verdadero ' + S.fin, S.compFin.visualize(VIS_RGB), descargasImg);
-  avisar('Imágenes ' + S.ini + ' y ' + S.fin + ' cargadas (pueden tardar unos segundos en verse).\n' +
-    'Compara ambos años con la cortina y luego dibuja tus polígonos (paso 2).');
+  enlacePNG('Color verdadero ' + S.ini, S.vIni.rgb.visualize(VIS_RGB), descargasImg);
+  enlacePNG('Color verdadero ' + S.fin, S.vFin.rgb.visualize(VIS_RGB), descargasImg);
 }
 
 function redibujarCapas() {
   var z = ZONAS[S.zona];
   var muni = ee.FeatureCollection('FAO/GAUL/2015/level2').filterBounds(ee.Geometry.Point(z.punto));
   var capasMapa = [
-    ui.Map.Layer(S.compIni, VIS_FALSO, 'Falso color ' + S.ini, false),
-    ui.Map.Layer(S.compFin, VIS_FALSO, 'Falso color ' + S.fin, false),
-    ui.Map.Layer(S.compIni, VIS_RGB, 'Color verdadero ' + S.ini, false),
-    ui.Map.Layer(S.compFin, VIS_RGB, 'Color verdadero ' + S.fin, true)
+    ui.Map.Layer(S.vIni.falso, VIS_FALSO, 'Falso color ' + S.ini, false),
+    ui.Map.Layer(S.vFin.falso, VIS_FALSO, 'Falso color ' + S.fin, false),
+    ui.Map.Layer(S.vIni.rgb, VIS_RGB, 'Color verdadero ' + S.ini, false),
+    ui.Map.Layer(S.vFin.rgb, VIS_RGB, 'Color verdadero ' + S.fin, true)
   ];
   if (S.clasIni) {
     capasMapa.push(ui.Map.Layer(S.clasIni, VIS_COB, 'Cobertura ' + S.ini, false));
@@ -351,7 +431,7 @@ function enlacePNG(etiqueta, imagenVis, destino) {
 
 function dibujar(i) {
   if (!S.cargado) { avisar('Primero carga la zona y los años (paso 1).', true); return; }
-  if (S.comparando) alternarComparacion();
+  verMapa(false);
   dibujo.setSelected(capas[i]);
   dibujo.setShape('polygon');
   dibujo.draw();
@@ -436,7 +516,10 @@ function listo(minimo) {
 
 function respaldar() {
   if (totalPoligonos() === 0) { avisar('Aún no hay polígonos para respaldar.'); return; }
+  if (S.ocupado) { avisar('Espera a que termine el cálculo anterior.'); return; }
+  ocupar(btnRespaldar, 'Preparando el respaldo de tus polígonos');
   poligonosFC().evaluate(function(fc, err) {
+    liberar();
     if (err) { avisar('No se pudo respaldar: ' + err, true); return; }
     var datos = {zona: S.zona, ini: S.ini, fin: S.fin, poligonos: fc.features.map(function(f) {
       return {clase: f.properties.clase, tipo: f.geometry.type, coords: redondear(f.geometry.coordinates)};
@@ -474,8 +557,7 @@ function formato(x, dec) {
 // --- Paso 3: firmas espectrales -------------------------------------
 function calcularFirmas() {
   if (!listo(1)) return;
-  S.ocupado = true;
-  avisar('Calculando las firmas espectrales de tus polígonos...');
+  ocupar(btnFirmas, 'Calculando las firmas espectrales de tus polígonos');
   var fc = poligonosFC();
   var reductor = ee.Reducer.mean()
     .combine({reducer2: ee.Reducer.stdDev(), sharedInputs: true})
@@ -490,7 +572,7 @@ function calcularFirmas() {
     });
   });
   ee.Dictionary(res).evaluate(function(r, err) {
-    S.ocupado = false;
+    liberar();
     if (err) { avisar('Error al calcular firmas: ' + err, true); return; }
     mostrarFirmas(r);
     descargaPoligonos(fc);
@@ -528,9 +610,9 @@ function mostrarFirmas(r) {
     vAxis: {title: 'Reflectancia (0–1)', viewWindow: {min: 0}},
     lineWidth: 2, pointSize: 6, series: series,
     legend: {position: 'top', maxLines: 3},
-    chartArea: {left: 55, top: 40, width: '85%', height: '62%'}
+    chartArea: {left: 55, top: 75, width: '85%', height: '56%'}
   });
-  grafica.style().set({height: '380px'});
+  grafica.style().set({height: '390px'});
   panelFirmas.add(ui.Label('Línea continua = ' + S.ini + ' · línea punteada = ' + S.fin, ESTILO_NOTA));
   panelFirmas.add(grafica);
 
@@ -617,7 +699,7 @@ function descargaPoligonos(fc) {
   panelFirmas.add(destino);
   var relleno = ee.Image().byte().paint(fc, 'clase').visualize({min: 0, max: 2, palette: COLORES, opacity: 0.65});
   var borde = ee.Image().byte().paint(fc, 0, 2).visualize({palette: ['ffffff']});
-  enlacePNG('Polígonos de entrenamiento sobre ' + S.fin, S.compFin.visualize(VIS_RGB).blend(relleno).blend(borde), destino);
+  enlacePNG('Polígonos de entrenamiento sobre ' + S.fin, S.vFin.rgb.visualize(VIS_RGB).blend(relleno).blend(borde), destino);
   var lbl = enlace('⏳ Polígonos en formato KML (preparando...)');
   destino.add(lbl);
   fc.getDownloadURL('kml', ['clase', 'nombre'], 'poligonos_entrenamiento', function(url, err) {
@@ -655,14 +737,15 @@ function superficies(clas, escala) {
 
 function clasificar() {
   if (!listo(2)) return;
-  S.ocupado = true;
-  avisar('Entrenando Random Forest y clasificando ' + S.ini + ' y ' + S.fin + '... (puede tardar 1-2 min)');
+  ocupar(btnClasificar, 'Entrenando Random Forest y midiendo superficies de ' + S.ini + ' y ' + S.fin +
+    ' (puede tardar 1-2 min)');
   var fc = poligonosFC();
   var rIni = entrenar(S.compIni, fc);
   var rFin = entrenar(S.compFin, fc);
   S.clasIni = rIni.mapa; S.clasFin = rFin.mapa;
   S.valIni = rIni.validacion; S.valFin = rFin.validacion;
   redibujarCapas();
+  if (S.comparando) actualizarComparacion();
   panelCobertura.clear();
   panelEvaluacion.clear();
   panelCobertura.add(ui.Label('Calculando superficies...', ESTILO_NOTA));
@@ -679,15 +762,15 @@ function calcularSuperficies(escala) {
     .evaluate(function(r, err) {
       if (err) {
         if (escala === ESCALA) {
-          avisar('El cálculo a ' + escala + ' m tardó demasiado; reintentando a ' + (escala * 2) + ' m...');
+          TRABAJO.tarea = 'El cálculo a ' + escala + ' m tardó demasiado; reintentando a ' + (escala * 2) + ' m';
           calcularSuperficies(escala * 2);
         } else {
-          S.ocupado = false;
+          liberar();
           avisar('Error al calcular superficies: ' + err + '\nEspera un minuto y vuelve a pulsar «Clasificar».', true);
         }
         return;
       }
-      S.ocupado = false;
+      liberar();
       mostrarSuperficies(r, escala);
     });
 }
@@ -723,14 +806,13 @@ function mostrarSuperficies(r, escala) {
 function evaluar() {
   if (!S.valIni) { avisar('Primero clasifica (paso 4).', true); return; }
   if (S.ocupado) { avisar('Espera a que termine el cálculo anterior.'); return; }
-  S.ocupado = true;
-  avisar('Calculando matrices de confusión...');
+  ocupar(btnEvaluar, 'Calculando las matrices de confusión');
   var orden = [0, 1, 2];
   ee.Dictionary({
     ini: S.valIni.errorMatrix('clase', 'classification', orden).array(),
     fin: S.valFin.errorMatrix('clase', 'classification', orden).array()
   }).evaluate(function(r, err) {
-    S.ocupado = false;
+    liberar();
     if (err) { avisar('Error en la evaluación: ' + err, true); return; }
     mostrarEvaluacion(r);
   });
@@ -805,8 +887,10 @@ function mostrarEvaluacion(r) {
 // --- Comparación con cortina -------------------------------------------
 function actualizarComparacion() {
   var modo = selComparar.getValue();
-  var izq = S.compIni, der = S.compFin, vis = VIS_RGB;
-  if (modo === 'Falso color') vis = VIS_FALSO;
+  var izq = S.vIni.rgb, der = S.vFin.rgb, vis = VIS_RGB;
+  if (modo === 'Falso color') {
+    izq = S.vIni.falso; der = S.vFin.falso; vis = VIS_FALSO;
+  }
   if (modo === 'Cobertura') {
     if (!S.clasIni) {
       avisar('La cobertura estará disponible después del paso 4. Mostrando color verdadero.');
@@ -824,24 +908,78 @@ function actualizarComparacion() {
   rotuloDer.setValue(modo + ' · ' + S.fin + ' ▶');
 }
 
+// Centro y zoom de un mapa, para que la cortina y el mapa de trabajo
+// muestren siempre el mismo lugar.
+function vistaDe(m) {
+  var b = m.getBounds();
+  return b ? {lon: (b[0] + b[2]) / 2, lat: (b[1] + b[3]) / 2, zoom: m.getZoom()} : null;
+}
+
+function ponerVista(m, v) {
+  if (v) m.setCenter(v.lon, v.lat, v.zoom);
+}
+
+// Si la vista se fue lejos (otro zoom u otra región), la regresa.
+function corregirVista(m, v) {
+  var ahora = vistaDe(m);
+  if (v && (!ahora || Math.abs(ahora.zoom - v.zoom) > 2 ||
+      Math.abs(ahora.lon - v.lon) > 0.3 || Math.abs(ahora.lat - v.lat) > 0.3)) {
+    ponerVista(m, v);
+  }
+}
+
+// Al volver a poner un mapa en la página, Earth Engine no redibuja las capas
+// que ya tenía: se recrean con los mismos datos y la misma visibilidad.
+function refrescarCapas(m) {
+  m.layers().reset(m.layers().getJsArray().map(function(l) {
+    return ui.Map.Layer(l.getEeObject(), l.getVisParams(), l.getName(), l.getShown(), l.getOpacity());
+  }));
+}
+
+function centrarZona() {
+  if (!S.cargado) { avisar('Primero carga la zona y los años (paso 1).', true); return; }
+  (S.comparando ? mapaIzq : mapa).centerObject(S.aoi);
+}
+
+// Cambia entre el mapa de trabajo y la cortina conservando el lugar y el zoom.
+function verMapa(conCortina) {
+  if (conCortina === S.comparando) return null;
+  var v;
+  if (conCortina) {
+    v = vistaDe(mapa);
+    terminarDibujo();
+    ui.root.widgets().set(1, cortina);
+    actualizarComparacion();
+    ponerVista(mapaIzq, v);
+    ponerVista(mapaDer, v);
+  } else {
+    v = vistaDe(mapaIzq);
+    ui.root.widgets().set(1, mapa);
+    refrescarCapas(mapa);
+    ponerVista(mapa, v);
+  }
+  S.comparando = conCortina;
+  btnComparar.setLabel(conCortina ? '↩ Volver al mapa de trabajo' : '⇆ Comparar inicio | fin (cortina)');
+  return v;
+}
+
 function alternarComparacion() {
   if (!S.cargado) { avisar('Primero carga la zona y los años (paso 1).', true); return; }
-  if (!S.comparando) {
-    var b = mapa.getBounds();
-    var z = mapa.getZoom();
-    terminarDibujo();
-    actualizarComparacion();
-    ui.root.widgets().set(1, cortina);
-    mapaIzq.setCenter((b[0] + b[2]) / 2, (b[1] + b[3]) / 2, z);
-    S.comparando = true;
-    btnComparar.setLabel('↩ Volver al mapa de trabajo');
-    estado.setValue('Arrastra la barra central para comparar ' + S.ini + ' (izquierda) con ' + S.fin + ' (derecha).');
-  } else {
-    ui.root.widgets().set(1, mapa);
-    S.comparando = false;
-    btnComparar.setLabel('⇆ Comparar inicio | fin (cortina)');
-    estado.setValue('De vuelta en el mapa de trabajo.');
-  }
+  if (S.ocupado) { avisar('Espera a que termine el cálculo anterior.'); return; }
+  var conCortina = !S.comparando;
+  var v = verMapa(conCortina);
+  var m = conCortina ? mapaIzq : mapa;
+  // La primera vez que se abre, la cortina se dibuja en la vista inicial de
+  // Earth Engine (América del Norte): se regresa al lugar donde estabas. La
+  // pausa también evita el doble clic.
+  ocupar(btnComparar, conCortina ? 'Abriendo la cortina' : 'Volviendo al mapa de trabajo');
+  ui.util.setTimeout(function() { corregirVista(m, v); }, 300);
+  ui.util.setTimeout(function() {
+    corregirVista(m, v);
+    liberar();
+    avisar(conCortina ? 'Arrastra la barra central para comparar ' + S.ini + ' (izquierda) con ' + S.fin + ' (derecha).'
+                      : 'De vuelta en el mapa de trabajo.');
+  }, 1500);
 }
 
 // ---------------------------------------------------------------------
@@ -859,6 +997,5 @@ if (RESPALDO && RESPALDO.poligonos) {
     capas[p.clase].geometries().add(g);
   });
   actualizarContadores();
-  cargar();
-  avisar('Se recuperaron ' + RESPALDO.poligonos.length + ' polígonos del respaldo.');
+  cargar('Se recuperaron ' + RESPALDO.poligonos.length + ' polígonos del respaldo. ');
 }

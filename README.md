@@ -18,7 +18,7 @@ Práctica guiada para Ingeniería en Agronomía: estimar la cobertura del suelo 
 
 ## Método (resumen)
 
-- **Imágenes:** `COPERNICUS/S2_SR_HARMONIZED`, compuesto anual (mediana) con nubes enmascaradas por Cloud Score+ (`cs_cdf ≥ 0.60`). Año inicial 2019–2021, año final 2023–2025 (predeterminado 2019 y 2025).
+- **Imágenes:** `COPERNICUS/S2_SR_HARMONIZED` (escenas con menos de 60 % de nubes), compuesto anual (mediana) con nubes enmascaradas por Cloud Score+ (`cs_cdf ≥ 0.60`). Las escenas del mismo día se unen en un mosaico, porque tres zonas caen entre dos cuadrantes de Sentinel-2 y cada fecha llegaría repetida. El mapa sólo calcula las tres bandas que dibuja, para ahorrar memoria. Año inicial 2019–2021, año final 2023–2025 (predeterminado 2019 y 2025).
 - **Bandas:** B2, B3, B4, B8, B11, B12, más NDVI y NDWI para el clasificador.
 - **Zonas (≈ 15 × 15 km):** Xalapa; Veracruz–Boca del Río; Medellín de Bravo–Mandinga; La Antigua–Cardel–Chachalacas; Alvarado.
 - **Entrenamiento:** polígonos dibujados por el equipo; hasta 500 píxeles por clase; 70 % entrena un Random Forest (100 árboles) por año y 30 % se reserva para la matriz de confusión (sensibilidad, especificidad y precisión).

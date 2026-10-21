@@ -1,0 +1,23 @@
+ACTIVIDAD 3. Cobertura del suelo y tasas de cambio
+Ingeniería en Agronomía
+
+Propósito: estimar automáticamente la cobertura del suelo (vegetación, suelo desnudo o construido y agua) en dos años con imágenes Sentinel-2 y Google Earth Engine, y calcular a mano la diferencia de superficie y la tasa de cambio de cada clase.
+Modalidad: equipos de 2 a 4 integrantes. Tiempo orientativo: 100 a 140 minutos (se puede dividir en dos sesiones). Requiere una cuenta con Earth Engine habilitado (actividad 1).
+
+Tutorial y cuadernillo: https://intelektia.github.io/tasas_de_cambio_act/
+
+Procedimiento:
+1. Abre el tutorial, registra a tu equipo y copia el código en el editor de Earth Engine (capítulos 2 y 3).
+2. Elige una de las cinco zonas y los años (por defecto 2019 y 2025). Compara ambas imágenes con la cortina y guarda las dos imágenes en color verdadero.
+3. Dibuja al menos 3 polígonos de entrenamiento por clase, en sitios que no cambiaron entre ambos años. Respáldalos.
+4. Calcula las firmas espectrales; guarda la gráfica y la tabla de datos.
+5. Clasifica ambos años, guarda los dos mapas de cobertura y copia la tabla de superficies (ha) en el cuadernillo.
+6. Calcula a mano la diferencia (final − inicial) y la tasa de cambio ((diferencia ÷ inicial) × 100) de cada clase; verifica tus cálculos en el cuadernillo.
+7. Opcional: pulsa «Evaluar exactitud» y guarda la matriz de confusión y la gráfica de sensibilidad, especificidad y precisión.
+8. Responde las preguntas con tus palabras y genera el reporte PDF desde el capítulo 11.
+
+Producto: un PDF de máximo 7 páginas generado por el cuadernillo, llamado Reporte_A3_<Equipo>_<Municipio>.pdf. Incluye portada con integrantes, zona y periodo; imágenes de inicio y fin; polígonos; firmas espectrales; mapas de cobertura; tabla de superficies; tabla y gráficas de la tasa de cambio; interpretación y conclusiones.
+
+Entrega en Eminus 4: abre esta actividad, adjunta el PDF en «Adjuntar evidencias» y pulsa «Entregar actividad». Por defecto cada integrante entrega el mismo PDF con todos los nombres, salvo que el docente configure entrega grupal.
+
+Evaluación / 10 puntos: polígonos y firmas espectrales con interpretación 3; mapas y superficies 2; cálculo de diferencias y tasas de cambio con interpretación 3; claridad, identificación y participación 2. La evaluación de exactitud es opcional y puede sumar como participación destacada.

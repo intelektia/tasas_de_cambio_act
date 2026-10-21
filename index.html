@@ -1,0 +1,1988 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cobertura y tasas de cambio · Actividad 3</title>
+<meta name="description" content="Tutorial y cuadernillo: cobertura del suelo y tasas de cambio con Google Earth Engine en la región central de Veracruz.">
+<style>
+:root{color-scheme:dark;--bg:#09121f;--panel:#122135;--card:#162940;--line:#2b415d;--text:#edf4ff;--muted:#b2c3d9;--mint:#77e3bc;--blue:#80beff;--gold:#f1c17d;--red:#ff9a9a;--veg:#39b878;--soil:#e2ae66;--water:#4c9de8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.65 'Segoe UI',Arial,sans-serif}
+a{color:var(--blue);text-underline-offset:3px}
+button,.button{font:inherit;font-size:14px;font-weight:650;border:1px solid var(--mint);background:var(--mint);color:#08251d;padding:9px 15px;border-radius:8px;cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.button:hover{filter:brightness(1.1)}
+button.secondary,.button.secondary{background:transparent;color:var(--text);border-color:var(--line)}
+button.danger{background:transparent;color:var(--red);border-color:#6b3340}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+header{height:60px;position:fixed;inset:0 0 auto;z-index:20;display:flex;align-items:center;justify-content:space-between;background:#0d1929;border-bottom:1px solid var(--line);padding:8px 20px;gap:10px}
+header strong{font-size:14px;letter-spacing:.06em}
+header .tools{display:flex;gap:8px;flex-wrap:wrap}
+header .tools button{padding:6px 10px;font-size:12px}
+#saveState{font-size:12px;color:var(--muted)}
+nav{position:fixed;left:0;top:60px;bottom:0;width:250px;padding:16px 10px 70px;overflow:auto;background:#0c1828;border-right:1px solid var(--line)}
+nav button{width:100%;text-align:left;color:var(--muted);background:transparent;border:0;font-weight:400;padding:7px 10px;margin:1px 0;font-size:13.5px;display:flex;justify-content:space-between;gap:6px;align-items:center}
+nav button.active{background:#1e3a47;color:var(--mint);font-weight:700}
+nav .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--line);flex:none}
+nav .dot.done{background:var(--mint);border-color:var(--mint)}
+main{margin:60px 0 0 250px;padding:34px clamp(18px,4vw,64px) 110px;max-width:1300px}
+.lesson{display:none}
+.lesson.active{display:block}
+h1{font-size:clamp(28px,3vw,42px);line-height:1.18;letter-spacing:-.02em;margin:8px 0 16px}
+h2{font-size:25px;line-height:1.3;margin:30px 0 10px}
+h3{font-size:19px;line-height:1.35;margin:18px 0 6px}
+p{margin:10px 0 16px}
+.lead{font-size:19px;color:var(--muted);max-width:900px}
+.eyebrow{color:var(--mint);letter-spacing:.13em;font-size:12px;font-weight:700;text-transform:uppercase}
+.grid2,.grid3{display:grid;gap:18px;margin:20px 0}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+.grid2>*,.grid3>*{min-width:0}
+article,.card{padding:20px 22px;background:var(--panel);border:1px solid var(--line);border-radius:13px;margin:14px 0}
+.grid2 article,.grid3 article{margin:0}
+.hero{padding:24px;background:linear-gradient(130deg,#183e40,#14233b);border-radius:18px;margin:20px 0}
+.pill{font-size:11px;letter-spacing:.06em;border:1px solid var(--line);padding:4px 9px;border-radius:20px;display:inline-block;color:var(--muted)}
+.callout{background:#143638;border-left:4px solid var(--mint);padding:14px 18px;border-radius:8px;margin:16px 0}
+.callout.warn{background:#3a2f17;border-left-color:var(--gold)}
+.callout.bad{background:#3a1d24;border-left-color:var(--red)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0}
+.flow span{background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:20px;font-size:14px}
+.flow i{color:var(--mint);font-style:normal}
+ol.steps{counter-reset:s;list-style:none;padding:0;margin:14px 0}
+ol.steps>li{counter-increment:s;position:relative;padding:4px 0 10px 46px}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:4px;width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--mint);color:var(--mint);display:grid;place-items:center;font-weight:700;font-size:14px}
+kbd{background:#203752;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-size:.85em;font-family:Consolas,monospace}
+code{font-family:Consolas,'Courier New',monospace;font-size:.9em;background:#0e1c2e;padding:1px 5px;border-radius:4px}
+.ui{font-weight:650;color:var(--gold)}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:650;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.swatch{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.formula{font-family:Cambria,'Times New Roman',serif;font-size:21px;background:#0e1c2e;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:12px 0;text-align:center;overflow-x:auto}
+.formula small{display:block;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:var(--muted);margin-top:4px}
+pre.code{background:#0b1626;border:1px solid var(--line);border-radius:10px;padding:14px;max-height:340px;overflow:auto;font-size:12.5px;line-height:1.45;margin:10px 0}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 16px;margin:12px 0}
+details summary{cursor:pointer;font-weight:650}
+/* Cuaderno */
+.notebook{border:1px solid #2f6a5c;background:#0f2430;border-radius:14px;padding:20px 22px;margin:26px 0}
+.notebook>h2:first-child,.notebook>h3:first-child{margin-top:0}
+.notebook .tag{color:var(--mint);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+label.f{display:block;font-weight:650;font-size:15px;margin:14px 0 4px}
+label.f small{font-weight:400;color:var(--muted)}
+input[type=text],input[type=date],input[type=number],select,textarea{font:inherit;font-size:15px;color:var(--text);background:#0b1828;border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+textarea{min-height:130px;resize:vertical;line-height:1.5}
+input.numin{text-align:right;font-variant-numeric:tabular-nums;max-width:170px}
+.count{font-size:12px;color:var(--muted);text-align:right}
+.count.low{color:var(--gold)}
+.members .row{display:grid;grid-template-columns:1fr 240px 40px;gap:8px;margin:6px 0}
+.members .row button{padding:4px 0}
+.uploads{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin:14px 0}
+.upload{border:1.5px dashed var(--line);border-radius:12px;padding:12px;background:#0b1828;display:flex;flex-direction:column;gap:8px;min-height:190px}
+.upload.has{border-style:solid;border-color:#2f6a5c}
+.upload.drag{border-color:var(--gold);background:#1a2a20}
+.upload .ttl{font-weight:650;font-size:14px}
+.upload .ttl em{font-style:normal;font-weight:400;color:var(--muted);font-size:12px}
+.upload .drop{flex:1;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;border-radius:8px;min-height:110px;padding:8px}
+.upload .drop img{max-width:100%;max-height:170px;border-radius:6px;background:#fff}
+.upload .meta{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.upload .meta button{padding:3px 8px;font-size:12px}
+.upload table{font-size:11px;margin:0}
+.upload td,.upload th{padding:2px 4px}
+.calc td{vertical-align:middle}
+.calc input{max-width:150px}
+.st{font-weight:700;font-size:14px;white-space:nowrap}
+.st.ok{color:var(--mint)}
+.st.bad{color:var(--red)}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.charts figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}
+.charts svg{width:100%;height:auto;display:block}
+.check li{margin:4px 0;list-style:none}
+.check li::before{content:'○';color:var(--gold);margin:0 8px 0 -22px;font-weight:700}
+.check li.done::before{content:'✓';color:var(--mint)}
+.check li.opt::before{content:'◇';color:var(--muted)}
+.mock{display:grid;grid-template-columns:230px 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:16px 0;font-size:12.5px}
+.mock .p{background:#f6f8fa;color:#1d2733;padding:12px;line-height:1.4}
+.mock .p b{color:#0b5d4b;display:block;margin:9px 0 3px}
+.mock .p .b{border:1px solid #c5ccd6;background:#fff;border-radius:4px;padding:3px 6px;margin:3px 0}
+.mock .m{background:linear-gradient(135deg,#3b5b3a,#5f7d4d 40%,#8a8f72 55%,#3e6f8f 75%);position:relative;min-height:260px}
+.mock .m .r{position:absolute;inset:14% 16%;border:2px solid #fff}
+.mock .m .lg{position:absolute;left:8px;bottom:8px;background:#fff;color:#222;border-radius:4px;padding:4px 8px;font-size:11px}
+.mock .m .sp{position:absolute;top:0;bottom:0;left:52%;width:3px;background:#fff}
+.mock .m .t{position:absolute;top:6px;background:#fff;color:#222;padding:1px 6px;border-radius:3px;font-weight:700;font-size:11px}
+footer.navbar{position:fixed;left:250px;right:0;bottom:0;background:#0d1929;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:9px 20px;z-index:15;gap:10px}
+footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
+#toast{position:fixed;right:18px;bottom:70px;background:#1f3b33;border:1px solid var(--mint);color:var(--text);padding:10px 16px;border-radius:10px;font-size:14px;z-index:50;max-width:380px;display:none}
+.zonecards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:14px 0}
+.zonecards article{margin:0;padding:14px 16px;font-size:14.5px;line-height:1.5}
+.zonecards b{color:var(--mint)}
+@media(max-width:1000px){nav{width:200px}main{margin-left:200px}footer.navbar{left:200px}.grid3{grid-template-columns:1fr}.grid2,.charts{grid-template-columns:1fr}}
+@media(max-width:700px){table.calc{display:block;overflow-x:auto}header{position:static;height:auto;flex-wrap:wrap}nav{position:static;width:auto;display:flex;flex-wrap:wrap;padding:8px;border-right:0;border-bottom:1px solid var(--line)}nav button{width:auto;font-size:12px;padding:5px 8px}main{margin:0;padding:22px 16px 110px}footer.navbar{left:0}.members .row{grid-template-columns:1fr 40px}.members .row select{grid-column:1}.mock{grid-template-columns:1fr}h1{font-size:28px}.lead{font-size:17px}}
+</style>
+</head>
+<body>
+<header>
+  <strong>AGRONOMÍA · COBERTURA Y CAMBIO</strong>
+  <div class="tools">
+    <span id="saveState" aria-live="polite"></span>
+    <button class="secondary" id="btnExport" title="Descarga un archivo con todo tu avance">💾 Guardar avance (.json)</button>
+    <button class="secondary" id="btnImport" title="Abre un archivo de avance guardado">📂 Cargar avance</button>
+    <input type="file" id="fileImport" accept=".json,application/json" hidden>
+  </div>
+</header>
+<nav id="nav" aria-label="Capítulos"></nav>
+<main id="main">
+
+<!-- ============================================================ INICIO -->
+<section class="lesson" id="inicio" data-title="Inicio">
+  <div class="eyebrow">Actividad 3 · Ingeniería en Agronomía</div>
+  <h1>¿Cuánto cambió el paisaje?</h1>
+  <p class="lead">Con imágenes Sentinel-2 y Google Earth Engine estimarás automáticamente la cobertura del suelo en dos años distintos, en una zona de la región central de Veracruz, y calcularás <b>a mano</b> cuánto creció o disminuyó cada clase.</p>
+  <div class="hero">
+    <div class="flow"><span>Zona y años</span><i>→</i><span>Polígonos por clase</span><i>→</i><span>Firmas espectrales</span><i>→</i><span>Mapas de cobertura</span><i>→</i><span>Hectáreas</span><i>→</i><span>Tasa de cambio</span><i>→</i><span>Reporte PDF</span></div>
+    <p style="margin:6px 0 0">Tres clases, las mismas de las actividades 1 y 2:
+      <span class="swatch" style="background:var(--veg)"></span>Vegetación ·
+      <span class="swatch" style="background:var(--soil)"></span>Suelo desnudo o construido ·
+      <span class="swatch" style="background:var(--water)"></span>Agua</p>
+  </div>
+  <div class="grid3">
+    <article><b>Lo que harás en Earth Engine</b><p>Elegir zona y años, comparar imágenes, dibujar polígonos de entrenamiento, calcular firmas espectrales, clasificar y obtener superficies.</p><span class="pill">60–80 min</span></article>
+    <article><b>Lo que harás en este cuadernillo</b><p>Registrar al equipo, subir tus imágenes, explicar con tus palabras, calcular diferencias y tasas de cambio, y verificarlas.</p><span class="pill">40–60 min</span></article>
+    <article><b>Lo que entregarás</b><p>Un reporte PDF de máximo 7 páginas generado con el botón del capítulo 11, listo para publicarse.</p><span class="pill">1 PDF por equipo</span></article>
+  </div>
+  <div class="callout"><b>Tu avance se guarda solo</b> en este navegador y en esta computadora. Si cambiarán de computadora, usen <span class="ui">💾 Guardar avance (.json)</span> y luego <span class="ui">📂 Cargar avance</span> en la otra.</div>
+  <p>Trabajo en equipos de 2 a 4 personas. Una persona opera Earth Engine con su cuenta; otra registra datos y capturas; otra verifica los cálculos; todas redactan. Cada integrante debe poder explicar cómo se calculó la tasa de cambio.</p>
+  <p><button data-go="conceptos">Comenzar →</button></p>
+</section>
+
+<!-- ============================================================ CONCEPTOS -->
+<section class="lesson" id="conceptos" data-title="1 · Ideas clave">
+  <div class="eyebrow">10 min de lectura</div>
+  <h1>Ideas clave antes de empezar</h1>
+  <h2>Cobertura del suelo</h2>
+  <p>Es <b>lo que cubre físicamente</b> la superficie: plantas, suelo, concreto o agua. No es lo mismo que el <i>uso</i> del suelo (un potrero y un cañaveral son usos distintos, pero ambos son cobertura «vegetación»). Usaremos tres clases amplias:</p>
+  <table>
+    <tr><th>Clase</th><th>Incluye</th><th>Cómo se ve en color verdadero</th></tr>
+    <tr><td><span class="swatch" style="background:var(--veg)"></span>Vegetación</td><td>Bosque, cafetal, selva, manglar, pastizal, cultivos verdes</td><td>Verdes de distinta intensidad</td></tr>
+    <tr><td><span class="swatch" style="background:var(--soil)"></span>Suelo desnudo o construido</td><td>Ciudad, calles, techos, caminos, arena, dunas, parcelas sin cultivo</td><td>Grises, blancos, cafés y beige</td></tr>
+    <tr><td><span class="swatch" style="background:var(--water)"></span>Agua</td><td>Mar, lagunas, ríos anchos, presas</td><td>Azul oscuro, verde oscuro o café (agua turbia)</td></tr>
+  </table>
+  <h2>Firma espectral</h2>
+  <p>Cada material refleja la luz de forma distinta en cada banda. Si graficamos la reflectancia (0 a 1) contra la longitud de onda, obtenemos su <b>firma espectral</b>. Además de las cuatro bandas que ya conoces (B2 azul, B3 verde, B4 rojo, B8 infrarrojo cercano), usaremos <b>B11 y B12</b>, del infrarrojo de onda corta (SWIR), que ayudan a separar el agua (casi 0) del suelo y las construcciones (valores altos).</p>
+  <div class="grid2">
+    <figure class="card" style="margin:0"><div id="esquemaFirmas"></div><figcaption style="font-size:13px;color:var(--muted)">Esquema orientativo con valores típicos, <b>no son tus datos</b>. Tus firmas saldrán de tus polígonos.</figcaption></figure>
+    <div>
+      <table>
+        <tr><th>Banda</th><th>Región</th><th class="num">nm</th></tr>
+        <tr><td>B2</td><td>Azul</td><td class="num">490</td></tr>
+        <tr><td>B3</td><td>Verde</td><td class="num">560</td></tr>
+        <tr><td>B4</td><td>Rojo</td><td class="num">665</td></tr>
+        <tr><td>B8</td><td>Infrarrojo cercano (NIR)</td><td class="num">842</td></tr>
+        <tr><td>B11</td><td>Infrarrojo de onda corta 1 (SWIR1)</td><td class="num">1610</td></tr>
+        <tr><td>B12</td><td>Infrarrojo de onda corta 2 (SWIR2)</td><td class="num">2190</td></tr>
+      </table>
+    </div>
+  </div>
+  <h2>Un año en una sola imagen</h2>
+  <p>Un solo día puede tener nubes. Por eso, para cada año el programa reúne <b>todas</b> las escenas Sentinel-2 de enero a diciembre, elimina nubes y sombras con el producto <i>Cloud Score+</i> y calcula, píxel por píxel y banda por banda, la <b>mediana</b>: el valor típico del año. Usamos la mediana y no la media porque una nube que se haya escapado del filtro casi no la mueve.</p>
+  <h2>Clasificación supervisada con Random Forest</h2>
+  <p>En la actividad 2 cada píxel se asignaba a la firma media más cercana (mínima distancia). Ahora usaremos <b>Random Forest</b> («bosque aleatorio»): 100 árboles de decisión, cada uno entrenado con una parte distinta de tus píxeles, <b>votan</b> la clase de cada píxel. Aprende de los mismos píxeles con los que calculas tus firmas, y suele ser más exacto cuando las clases son variadas (por ejemplo, «suelo» incluye techos, arena y parcelas).</p>
+  <div class="callout warn"><b>Tú eres la parte «supervisada».</b> El programa sólo sabe lo que tus polígonos le enseñan. Polígonos mal ubicados producen mapas equivocados.</div>
+  <h2>Superficie y tasa de cambio</h2>
+  <p>Cada píxel mide 10 m × 10 m = 100 m² = <b>0.01 ha</b>. El programa suma los píxeles de cada clase y te da las hectáreas. Después, tú calcularás:</p>
+  <div class="formula">Diferencia (ha) = Superficie<sub>final</sub> − Superficie<sub>inicial</sub><small>Positiva = la clase creció · Negativa = la clase disminuyó</small></div>
+  <div class="formula">Tasa de cambio (%) = ( Diferencia ÷ Superficie<sub>inicial</sub> ) × 100<small>Cuánto cambió la clase respecto a lo que había al inicio</small></div>
+  <h2>¿Qué tan confiable es el mapa?</h2>
+  <p>El programa reserva, sin que tengas que hacer nada, el <b>30 %</b> de los píxeles de tus polígonos para comprobar al modelo. Con ellos arma una <b>matriz de confusión</b> y calcula tres porcentajes por clase: sensibilidad, especificidad y precisión (capítulo 9).</p>
+</section>
+
+<!-- ============================================================ PREPARAR -->
+<section class="lesson" id="preparar" data-title="2 · Abrir el código en GEE">
+  <div class="eyebrow">5 min</div>
+  <h1>Abre el código en Earth Engine</h1>
+  <p class="lead">Cada integrante tiene su cuenta, pero el equipo trabaja con <b>una</b> computadora operadora. Si tu cuenta aún no está habilitada, sigue el capítulo «Habilitar acceso» del <a href="https://intelektia.github.io/firmas_espectrales_actividad/" target="_blank" rel="noopener">tutorial de la actividad 1</a>.</p>
+  <ol class="steps">
+    <li>Abre <a href="https://code.earthengine.google.com/" target="_blank" rel="noopener">code.earthengine.google.com</a> con tu cuenta de Google y tu proyecto.</li>
+    <li>En el editor (centro arriba), borra lo que haya (<kbd>Ctrl</kbd>+<kbd>A</kbd> y <kbd>Supr</kbd>).</li>
+    <li>Pulsa <span class="ui">Copiar código</span> aquí abajo y pégalo en el editor (<kbd>Ctrl</kbd>+<kbd>V</kbd>).</li>
+    <li>Opcional: pulsa <span class="ui">Save</span> y guárdalo como <code>actividad3_cobertura</code>.</li>
+    <li>Pulsa <span class="ui">Run</span> <b>una sola vez</b>. A la izquierda aparecerá el panel de la práctica y, a la derecha, el mapa.</li>
+  </ol>
+  <div class="actions" style="display:flex;gap:10px;flex-wrap:wrap">
+    <button id="btnCopiar">📋 Copiar código</button>
+    <a class="button secondary" href="cobertura_tasas_cambio.js" download>⬇ Descargar archivo .js</a>
+  </div>
+  <details><summary>Ver el código (<span id="nLineas"></span> líneas)</summary><pre class="code" id="verCodigo"></pre></details>
+  <div class="callout bad"><b>¡Cuidado con Run!</b> Volver a pulsar Run reinicia la aplicación y <b>borra tus polígonos</b>. Usa <span class="ui">💾 Respaldar polígonos</span> (paso 2 del panel) y guarda el texto que aparece en la pestaña Console. Para recuperarlos, pégalo en la línea <code>var RESPALDO = null;</code> en lugar de <code>null</code> y pulsa Run.</div>
+  <h2>Así se ve la aplicación</h2>
+  <div class="mock" aria-label="Esquema de la aplicación">
+    <div class="p">
+      <div style="font-weight:700;font-size:14px">Cobertura del suelo y tasas de cambio</div>
+      <b>1 · Zona de trabajo y años</b><div class="b">3. Medellín de Bravo y… ▾</div><div class="b">2019 ▾ · 2025 ▾</div><div class="b">▶ Cargar imágenes</div><div class="b">Color verdadero ▾ · ⇆ Comparar</div>
+      <b>2 · Polígonos de entrenamiento</b><div class="b">✏ Vegetación · ✏ Suelo… · ✏ Agua</div>
+      <b>3 · Firmas espectrales</b><div class="b">📈 Calcular firmas espectrales</div>
+      <b>4 · Cobertura y superficies</b><div class="b">🗺 Clasificar inicio y fin</div>
+      <b>5 · Evaluación (opcional)</b><div class="b">✅ Evaluar exactitud</div>
+    </div>
+    <div class="m"><div class="r"></div><div class="sp"></div><span class="t" style="left:8px">◀ 2019</span><span class="t" style="right:8px">2025 ▶</span><div class="lg"><span class="swatch" style="background:var(--veg)"></span>Vegetación<br><span class="swatch" style="background:var(--soil)"></span>Suelo/construido<br><span class="swatch" style="background:var(--water)"></span>Agua</div></div>
+  </div>
+  <p style="font-size:14px;color:var(--muted)">Esquema orientativo, no es una captura real. El rectángulo blanco es tu área de trabajo; la línea vertical es la «cortina» para comparar años.</p>
+</section>
+
+<!-- ============================================================ EQUIPO -->
+<section class="lesson" id="equipo" data-title="3 · Registro del equipo">
+  <div class="eyebrow">Cuaderno</div>
+  <h1>Registro del equipo</h1>
+  <p class="lead">Estos datos aparecerán en la portada del reporte.</p>
+  <div class="notebook">
+    <div class="tag">Cuaderno · Identificación</div>
+    <label class="f" for="f_equipo">Nombre del equipo</label>
+    <input type="text" id="f_equipo" data-field="equipo" maxlength="60" placeholder="Ej. Los Manglares">
+    <label class="f">Integrantes <small>(nombre completo y función principal; de 1 a 6)</small></label>
+    <div class="members" id="members"></div>
+    <button class="secondary" id="btnAddMember" type="button">+ Agregar integrante</button>
+    <div class="grid2" style="margin:6px 0 0">
+      <div><label class="f" for="f_grupo">Grupo / sección <small>(opcional)</small></label><input type="text" id="f_grupo" data-field="grupo" maxlength="40" placeholder="Ej. Matemáticas, sección 2"></div>
+      <div><label class="f" for="f_docente">Docente <small>(opcional)</small></label><input type="text" id="f_docente" data-field="docente" maxlength="60"></div>
+    </div>
+    <label class="f" for="f_fecha">Fecha</label>
+    <input type="date" id="f_fecha" data-field="fecha" style="max-width:220px">
+  </div>
+</section>
+
+<!-- ============================================================ ZONA -->
+<section class="lesson" id="zona" data-title="4 · Zona y años">
+  <div class="eyebrow">Earth Engine · paso 1</div>
+  <h1>Elige tu zona y tus años</h1>
+  <p class="lead">Cada zona es un rectángulo de unos 15 × 15 km (≈ 23,500 ha) alrededor de una cabecera municipal. Todas tienen las tres clases.</p>
+  <div class="zonecards" id="zoneCards"></div>
+  <h2>En Earth Engine</h2>
+  <ol class="steps">
+    <li>En <span class="ui">1 · Zona de trabajo y años</span> elige tu zona, el <b>año inicial</b> (2019, 2020 o 2021) y el <b>año final</b> (2023, 2024 o 2025). Si tu docente no indica otra cosa, usa <b>2019 y 2025</b>.</li>
+    <li>Pulsa <span class="ui">▶ Cargar imágenes</span>. Bajo el botón aparecerá cuántas escenas se usaron en cada compuesto anual. Las imágenes tardan unos segundos en dibujarse.</li>
+    <li>Pulsa <span class="ui">⇆ Comparar inicio | fin (cortina)</span>. Arrastra la barra blanca: a la izquierda el año inicial, a la derecha el final. Cambia entre <span class="ui">Color verdadero</span> y <span class="ui">Falso color</span> (la vegetación se ve roja). Busca zonas nuevas de construcción, parcelas o cambios en el agua.</li>
+    <li>Pulsa <span class="ui">↩ Volver al mapa de trabajo</span>. Con la casilla <span class="ui">Layers</span> del mapa también puedes prender y apagar cada año.</li>
+    <li>En el panel aparecen dos enlaces <span class="ui">⬇ Color verdadero … (PNG)</span>. Haz clic en cada uno: se abre la imagen en otra pestaña; guárdala con clic derecho → <i>Guardar imagen como…</i> (por ejemplo <code>rgb_2019.png</code>).</li>
+  </ol>
+  <div class="notebook">
+    <div class="tag">Cuaderno · Zona de estudio</div>
+    <div class="grid3" style="margin:6px 0">
+      <div><label class="f" for="f_zona">Zona elegida</label><select id="f_zona" data-field="zona"></select></div>
+      <div><label class="f" for="f_ini">Año inicial</label><select id="f_ini" data-field="ini"><option>2019</option><option>2020</option><option>2021</option></select></div>
+      <div><label class="f" for="f_fin">Año final</label><select id="f_fin" data-field="fin"><option>2023</option><option>2024</option><option>2025</option></select></div>
+    </div>
+    <div class="uploads">
+      <div class="upload" data-img="rgbIni"></div>
+      <div class="upload" data-img="rgbFin"></div>
+    </div>
+    <label class="f" for="f_q2">Pregunta 2 · ¿Qué zona eligieron y por qué? Describan el paisaje y lo que observan al comparar las imágenes de ambos años. <small>(¿ciudad, cultivos, manglar, ríos? ¿qué cambios notan a simple vista?)</small></label>
+    <textarea id="f_q2" data-field="q2" maxlength="700"></textarea><div class="count" data-count="q2"></div>
+  </div>
+</section>
+
+<!-- ============================================================ POLIGONOS -->
+<section class="lesson" id="poligonos" data-title="5 · Polígonos de entrenamiento">
+  <div class="eyebrow">Earth Engine · paso 2</div>
+  <h1>Enseña al programa con tus polígonos</h1>
+  <p class="lead">Un polígono de entrenamiento es un área que <b>tú</b> etiquetas porque estás segura o seguro de qué cobertura tiene.</p>
+  <ol class="steps">
+    <li>Pulsa el botón de una clase, por ejemplo <span class="ui">✏ Vegetación</span>.</li>
+    <li>Haz clic en el mapa para marcar cada vértice. Cierra el polígono con <b>doble clic</b> (o clic sobre el primer vértice).</li>
+    <li>Puedes seguir dibujando más polígonos de esa misma clase. Para cambiar de clase, pulsa el botón de la otra clase.</li>
+    <li>Usa <span class="ui">↶ Deshacer último</span> si te equivocas, o <span class="ui">⏹ Terminar de dibujar</span> para mover el mapa y editar vértices.</li>
+    <li>Junto a cada botón verás el número de polígonos; se pone verde al llegar a 3.</li>
+    <li>Al terminar, pulsa <span class="ui">💾 Respaldar polígonos</span> y guarda el texto de la pestaña Console en un archivo de texto.</li>
+  </ol>
+  <div class="grid2">
+    <article><b>Reglas de oro</b>
+      <ul>
+        <li><b>Mínimo 3 polígonos por clase</b>; mejor 4 a 6, repartidos por toda la zona.</li>
+        <li>Dibuja <b>dentro del rectángulo blanco</b>.</li>
+        <li>Elige sitios que <b>no cambiaron</b> entre los dos años: revísalos con la cortina. El mismo polígono enseña al modelo en ambos años.</li>
+        <li>Áreas <b>homogéneas</b>: aléjate de bordes, sombras, nubes y mezclas.</li>
+        <li>En «suelo/construido» incluye variedad: techos, calles, arena, parcelas sin cultivo.</li>
+        <li>En «agua», dibuja en el centro de lagunas o ríos anchos, lejos de la orilla y de la espuma del mar.</li>
+      </ul></article>
+    <article><b>¿Qué tamaño?</b>
+      <p>Cada polígono debe abarcar al menos unos 50 píxeles (por ejemplo, 80 m × 80 m). El programa toma hasta 500 píxeles por clase y equilibra las clases automáticamente.</p>
+      <p>No necesitas cubrir toda la zona: con polígonos bien elegidos el modelo clasifica el resto.</p>
+      <p style="color:var(--muted);font-size:14px">La imagen PNG con tus polígonos aparece como enlace en el paso 3 del panel, después de calcular las firmas. También puedes tomar una captura de pantalla del mapa (<kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>).</p></article>
+  </div>
+  <div class="notebook">
+    <div class="tag">Cuaderno · Entrenamiento</div>
+    <label class="f">Número de polígonos dibujados por clase</label>
+    <div class="grid3" style="margin:4px 0">
+      <div><label class="f" for="f_np0" style="font-weight:400"><span class="swatch" style="background:var(--veg)"></span>Vegetación</label><input type="number" min="0" max="99" id="f_np0" data-npol="0" class="numin"></div>
+      <div><label class="f" for="f_np1" style="font-weight:400"><span class="swatch" style="background:var(--soil)"></span>Suelo desnudo o construido</label><input type="number" min="0" max="99" id="f_np1" data-npol="1" class="numin"></div>
+      <div><label class="f" for="f_np2" style="font-weight:400"><span class="swatch" style="background:var(--water)"></span>Agua</label><input type="number" min="0" max="99" id="f_np2" data-npol="2" class="numin"></div>
+    </div>
+    <div class="uploads"><div class="upload" data-img="poligonos"></div></div>
+  </div>
+</section>
+
+<!-- ============================================================ FIRMAS -->
+<section class="lesson" id="firmas" data-title="6 · Firmas espectrales">
+  <div class="eyebrow">Earth Engine · paso 3</div>
+  <h1>Calcula y grafica las firmas espectrales</h1>
+  <ol class="steps">
+    <li>Pulsa <span class="ui">📈 Calcular firmas espectrales</span>. El programa promedia, banda por banda, todos los píxeles dentro de los polígonos de cada clase, para cada año.</li>
+    <li>La <b>gráfica</b> muestra 6 líneas: línea continua = año inicial; línea punteada = año final. El color indica la clase.</li>
+    <li>La <b>tabla</b> muestra la reflectancia media ± desviación estándar y cuántos píxeles se usaron. Si una clase tiene menos de 50 píxeles, el programa te avisará: dibuja polígonos más grandes.</li>
+    <li>Descarga la gráfica: pasa el ratón sobre ella y pulsa el ícono <span class="ui">↗</span> (arriba a la derecha). En la ventana nueva elige <span class="ui">Download PNG</span>.</li>
+    <li>La tabla: con su ícono <span class="ui">↗</span> descarga el <span class="ui">CSV</span>, o toma una captura de pantalla (<kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Aquí puedes subir cualquiera de las dos.</li>
+    <li>Guarda también el enlace <span class="ui">⬇ Polígonos de entrenamiento sobre … (PNG)</span> y súbelo en el capítulo 5.</li>
+  </ol>
+  <div class="callout">¿Qué buscar? La vegetación: poco rojo (B4) y mucho NIR (B8), por la clorofila y la estructura de las hojas. El agua: valores bajos en todo y casi cero en NIR y SWIR. Suelo y construcciones: valores medios a altos que aumentan hacia el SWIR. Si dos clases tienen firmas muy parecidas, el modelo las confundirá.</div>
+  <div class="notebook">
+    <div class="tag">Cuaderno · Firmas espectrales</div>
+    <div class="uploads">
+      <div class="upload" data-img="firmas"></div>
+      <div class="upload" data-img="tablaFirmas" data-csv="1"></div>
+    </div>
+    <label class="f" for="f_q3">Pregunta 3 · ¿Cómo eligieron sus polígonos y qué les dicen las firmas espectrales? <small>(¿en qué bandas se separan más las clases? ¿por qué la vegetación sube tanto en el NIR? ¿cambiaron las firmas entre años?)</small></label>
+    <textarea id="f_q3" data-field="q3" maxlength="700"></textarea><div class="count" data-count="q3"></div>
+  </div>
+</section>
+
+<!-- ============================================================ COBERTURA -->
+<section class="lesson" id="cobertura" data-title="7 · Cobertura y superficies">
+  <div class="eyebrow">Earth Engine · paso 4</div>
+  <h1>Estima la cobertura y sus hectáreas</h1>
+  <ol class="steps">
+    <li>Pulsa <span class="ui">🗺 Clasificar inicio y fin</span>. Se entrena un Random Forest para cada año con tus mismos polígonos. Puede tardar 1 o 2 minutos.</li>
+    <li>Aparecen las capas <span class="ui">Cobertura (año inicial)</span> y <span class="ui">Cobertura (año final)</span>. Compáralas con la cortina eligiendo <span class="ui">Cobertura</span> en el selector, o prende y apaga capas en <span class="ui">Layers</span>.</li>
+    <li>Revisa el mapa: ¿la ciudad está en beige, el agua en azul y la vegetación en verde? Si hay errores grandes, agrega polígonos donde se equivocó y vuelve a pulsar <span class="ui">Calcular firmas</span> y <span class="ui">Clasificar</span>.</li>
+    <li>Descarga los mapas con los enlaces <span class="ui">⬇ Cobertura … (PNG)</span>.</li>
+    <li>Copia la <b>tabla de superficies</b> (hectáreas por clase) exactamente como aparece en el panel, con sus dos decimales.</li>
+  </ol>
+  <div class="notebook">
+    <div class="tag">Cuaderno · Mapas y superficies</div>
+    <div class="uploads">
+      <div class="upload" data-img="cobIni"></div>
+      <div class="upload" data-img="cobFin"></div>
+    </div>
+    <h3>Superficie por clase (ha) <small style="font-weight:400;color:var(--muted)">copiada del panel de Earth Engine</small></h3>
+    <table class="calc">
+      <thead><tr><th>Clase</th><th class="num">Superficie <span class="yIni">inicial</span> (ha)</th><th class="num">Superficie <span class="yFin">final</span> (ha)</th></tr></thead>
+      <tbody id="areasBody"></tbody>
+      <tfoot><tr><th>Total</th><th class="num" id="totIni">—</th><th class="num" id="totFin">—</th></tr></tfoot>
+    </table>
+    <div id="areasAviso"></div>
+  </div>
+</section>
+
+<!-- ============================================================ TASA -->
+<section class="lesson" id="tasa" data-title="8 · Tasa de cambio (a mano)">
+  <div class="eyebrow">Cálculo del equipo</div>
+  <h1>Calcula la diferencia y la tasa de cambio</h1>
+  <p class="lead">Con calculadora o papel, no con Earth Engine. Escribe tus resultados con <b>dos decimales</b>. Después pulsa <span class="ui">Verificar mis cálculos</span>: el reporte sólo se genera cuando todo es correcto.</p>
+  <div class="formula">Diferencia = A<sub>final</sub> − A<sub>inicial</sub> &nbsp;&nbsp;·&nbsp;&nbsp; Tasa de cambio (%) = (Diferencia ÷ A<sub>inicial</sub>) × 100</div>
+  <details open><summary>Ejemplo resuelto (números inventados)</summary>
+    <p>La vegetación ocupaba <b>12,500.00 ha</b> en 2019 y <b>11,875.00 ha</b> en 2025.</p>
+    <p>Diferencia = 11,875.00 − 12,500.00 = <b>−625.00 ha</b> (el signo menos indica pérdida).<br>
+    Tasa de cambio = (−625.00 ÷ 12,500.00) × 100 = −0.05 × 100 = <b>−5.00 %</b>.</p>
+    <p>Lectura: «entre 2019 y 2025 la vegetación disminuyó 625 ha, es decir, 5 % de la que había en 2019».</p>
+  </details>
+  <div class="notebook">
+    <div class="tag">Cuaderno · Tasa de cambio</div>
+    <table class="calc">
+      <thead><tr><th>Clase</th><th class="num">A <span class="yIni">inicial</span> (ha)</th><th class="num">A <span class="yFin">final</span> (ha)</th><th>Diferencia (ha)</th><th>Tasa de cambio (%)</th><th></th></tr></thead>
+      <tbody id="calcBody"></tbody>
+    </table>
+    <p id="calcFalta" style="color:var(--gold);font-size:14px"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button id="btnVerificar">✔ Verificar mis cálculos</button><span id="verifResumen" class="st"></span></div>
+    <div id="pistas"></div>
+    <div id="graficasCambio" class="charts" hidden>
+      <figure><div id="svgAreas"></div></figure>
+      <figure><div id="svgCambio"></div></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ EVALUACION -->
+<section class="lesson" id="evaluacion" data-title="9 · Evaluación (opcional)">
+  <div class="eyebrow">Earth Engine · paso 5 · opcional</div>
+  <h1>¿Qué tan confiable es tu mapa?</h1>
+  <p class="lead">Sólo hay que pulsar <span class="ui">✅ Evaluar exactitud</span>. El programa usa el 30 % de los píxeles de tus polígonos que el modelo <b>no vio</b> al entrenar.</p>
+  <h2>Cómo leer la matriz de confusión</h2>
+  <p>Las <b>filas</b> son la clase real (la que tú marcaste) y las <b>columnas</b> lo que el modelo dijo. La diagonal son aciertos. Para una clase, por ejemplo Agua:</p>
+  <table>
+    <tr><th></th><th>El modelo dijo «Agua»</th><th>El modelo dijo «otra clase»</th></tr>
+    <tr><th>Realmente es Agua</th><td><b>VP</b> · verdadero positivo</td><td><b>FN</b> · falso negativo (agua que no encontró)</td></tr>
+    <tr><th>Realmente es otra clase</th><td><b>FP</b> · falso positivo (lo llamó agua sin serlo)</td><td><b>VN</b> · verdadero negativo</td></tr>
+  </table>
+  <div class="grid3">
+    <article><b>Sensibilidad</b><div class="formula" style="font-size:17px">VP ÷ (VP + FN) × 100</div>De todo lo que <i>realmente</i> es la clase, ¿qué porcentaje encontró? Baja si hay muchos <b>falsos negativos</b>.</article>
+    <article><b>Especificidad</b><div class="formula" style="font-size:17px">VN ÷ (VN + FP) × 100</div>De todo lo que <i>no</i> es la clase, ¿qué porcentaje descartó bien?</article>
+    <article><b>Precisión</b><div class="formula" style="font-size:17px">VP ÷ (VP + FP) × 100</div>De lo que el mapa <i>llamó</i> esa clase, ¿qué porcentaje era correcto? Baja si hay muchos <b>falsos positivos</b>.</article>
+  </div>
+  <div class="callout warn">Los píxeles de validación vienen de tus mismos polígonos, por eso los porcentajes suelen ser altos (optimistas). Un mapa puede tener 98 % aquí y aun así equivocarse en zonas que no muestreaste: mira siempre el mapa.</div>
+  <p>Descarga la gráfica de evaluación con su ícono <span class="ui">↗</span> y toma una captura de las tablas (matrices y métricas).</p>
+  <div class="notebook">
+    <div class="tag">Cuaderno · Evaluación (opcional)</div>
+    <div class="uploads">
+      <div class="upload" data-img="evalMatriz" data-opt="1"></div>
+      <div class="upload" data-img="evalGrafica" data-opt="1"></div>
+    </div>
+    <label class="f" for="f_q5">Pregunta 5 (opcional) · ¿Qué clase se confundió más y con cuál? ¿Por qué creen que ocurrió?</label>
+    <textarea id="f_q5" data-field="q5" maxlength="450" style="min-height:90px"></textarea><div class="count" data-count="q5"></div>
+  </div>
+</section>
+
+<!-- ============================================================ CONCLUSION -->
+<section class="lesson" id="conclusion" data-title="10 · Descripción y conclusiones">
+  <div class="eyebrow">Cuaderno</div>
+  <h1>Explícalo con tus palabras</h1>
+  <p class="lead">Escriban como equipo, con frases propias y completas. No copien textos de internet: el reporte ya incluye la descripción técnica del método.</p>
+  <div class="notebook">
+    <div class="tag">Cuaderno · Descripción general</div>
+    <label class="f" for="f_q1">Pregunta 1 · ¿Qué hicieron en esta actividad y para qué sirve conocer la tasa de cambio de la cobertura del suelo? <small>(pensando en la agronomía, el agua o la ciudad)</small></label>
+    <textarea id="f_q1" data-field="q1" maxlength="700"></textarea><div class="count" data-count="q1"></div>
+    <label class="f" for="f_q4">Pregunta 4 · ¿Qué cambió, cuánto y por qué? <small>(¿qué clase creció y cuál disminuyó? ¿qué procesos lo explican: urbanización, agricultura, sequía, inundaciones? ¿qué errores del mapa podrían afectar sus números?)</small></label>
+    <textarea id="f_q4" data-field="q4" maxlength="900"></textarea><div class="count" data-count="q4"></div>
+  </div>
+</section>
+
+<!-- ============================================================ REPORTE -->
+<section class="lesson" id="reporte" data-title="11 · Generar reporte PDF">
+  <div class="eyebrow">Producto final</div>
+  <h1>Genera tu reporte PDF</h1>
+  <p class="lead">El reporte reúne tus datos, imágenes y respuestas, agrega títulos, la descripción del método y gráficas, en un máximo de 7 páginas.</p>
+  <div class="grid2">
+    <article><b>Lista de verificación</b><ul class="check" id="checklist"></ul></article>
+    <article><b>Generar</b>
+      <p>Cuando todos los puntos obligatorios estén marcados, pulsa el botón. El archivo se descarga con el nombre del equipo.</p>
+      <p><button id="btnPDF">📄 Generar reporte PDF</button></p>
+      <p id="pdfMsg" style="font-size:14px;color:var(--muted)"></p>
+      <p style="font-size:14px;color:var(--muted)">Ábrelo y revísalo antes de entregarlo. Entréguenlo por el medio que indique su docente (por ejemplo, Eminus): por defecto cada integrante entrega el mismo PDF.</p>
+    </article>
+  </div>
+  <details><summary>¿Qué contiene el reporte?</summary>
+    <ol>
+      <li>Portada: título, zona, periodo, equipo, integrantes y resumen de resultados.</li>
+      <li>Introducción (pregunta 1) y zona de estudio (pregunta 2) con las imágenes de inicio y fin.</li>
+      <li>Datos y métodos (texto automático), polígonos de entrenamiento.</li>
+      <li>Firmas espectrales: gráfica, tabla e interpretación (pregunta 3).</li>
+      <li>Mapas de cobertura y tabla de superficies.</li>
+      <li>Tasa de cambio: tabla, gráficas y conclusiones (pregunta 4).</li>
+      <li>Evaluación de la exactitud (si la hicieron) y referencias.</li>
+    </ol>
+  </details>
+  <div class="callout warn"><b>Borrar todo:</b> al terminar el curso o si la computadora es compartida, puedes borrar los datos guardados en este navegador. <button class="danger" id="btnReset" style="margin-left:8px">Borrar mis datos</button></div>
+</section>
+
+<!-- ============================================================ AYUDA -->
+<section class="lesson" id="ayuda" data-title="Ayuda">
+  <div class="eyebrow">Consulta en cualquier momento</div>
+  <h1>Resolver tropiezos</h1>
+  <table>
+    <tr><th>Situación</th><th>Qué hacer</th></tr>
+    <tr><td>Error de proyecto o «not registered»</td><td>Revisa tu proyecto en el ícono de perfil del editor → <i>Change Cloud Project</i>. Consulta el capítulo «Habilitar acceso» de la actividad 1.</td></tr>
+    <tr><td>Las imágenes no aparecen o salen grises</td><td>Espera 10–30 s y acerca el mapa al rectángulo blanco. Revisa la pestaña Console por mensajes en rojo.</td></tr>
+    <tr><td>Perdí mis polígonos</td><td>Si tenías respaldo, pégalo en <code>var RESPALDO = null;</code> (en lugar de <code>null</code>) y pulsa Run. Si no, vuelve a dibujarlos.</td></tr>
+    <tr><td>«Necesitas al menos 2 polígonos de…»</td><td>Revisa los contadores junto a cada clase. Para clasificar se piden 2 por clase; para el reporte recomendamos 3 o más.</td></tr>
+    <tr><td>«Pocos píxeles en…»</td><td>Tus polígonos son muy pequeños o están fuera del rectángulo. Dibuja algunos más grandes.</td></tr>
+    <tr><td>La clasificación o las superficies tardan mucho</td><td>Espera hasta 2 minutos. Si sale error, el programa reintenta con píxeles de 20 m. Si vuelve a fallar, espera un minuto y pulsa otra vez <span class="ui">Clasificar</span>.</td></tr>
+    <tr><td>El mapa confunde agua con sombras o asfalto</td><td>Agrega polígonos de suelo/construido en esas calles o techos oscuros y de vegetación en laderas sombreadas; vuelve a clasificar.</td></tr>
+    <tr><td>El enlace PNG no abre</td><td>Los enlaces caducan. Vuelve a pulsar el botón del paso correspondiente para generarlos de nuevo.</td></tr>
+    <tr><td>«Revisa» en la verificación</td><td>Comprueba el orden (final − inicial), el signo y que dividiste entre la superficie <b>inicial</b>. Usa dos decimales.</td></tr>
+    <tr><td>El total de hectáreas no coincide con el área de la zona</td><td>Verifica que elegiste la misma zona aquí y en Earth Engine, y que copiaste bien cada número.</td></tr>
+    <tr><td>Mi avance desapareció</td><td>Se guarda por navegador y computadora. Usa <span class="ui">📂 Cargar avance</span> con tu archivo .json.</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ REFERENCIAS -->
+<section class="lesson" id="referencias" data-title="Referencias">
+  <div class="eyebrow">Fuentes</div>
+  <h1>Herramientas y referencias</h1>
+  <ul>
+    <li>Breiman, L. (2001). Random Forests. <i>Machine Learning</i>, 45, 5–32.</li>
+    <li>Drusch, M. et al. (2012). Sentinel-2: ESA's optical high-resolution mission for GMES operational services. <i>Remote Sensing of Environment</i>, 120, 25–36.</li>
+    <li>Gorelick, N. et al. (2017). Google Earth Engine: Planetary-scale geospatial analysis for everyone. <i>Remote Sensing of Environment</i>, 202, 18–27.</li>
+    <li>Pasquarella, V. J. et al. (2023). Comprehensive quality assessment of optical satellite imagery using weakly supervised video learning (Cloud Score+). <i>CVPR Workshops</i>.</li>
+    <li>Congalton, R. G. y Green, K. (2019). <i>Assessing the Accuracy of Remotely Sensed Data</i> (3.ª ed.). CRC Press.</li>
+    <li>Datos: <a href="https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED" target="_blank" rel="noopener">Sentinel-2 SR Harmonized</a>, <a href="https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_CLOUD_SCORE_PLUS_V1_S2_HARMONIZED" target="_blank" rel="noopener">Cloud Score+</a>, límites municipales FAO GAUL 2015.</li>
+  </ul>
+  <p style="color:var(--muted);font-size:14px">Material didáctico. Las superficies son estimaciones de un ejercicio con tres clases amplias y no sustituyen inventarios oficiales (INEGI, CONAFOR, SIAP).</p>
+</section>
+</main>
+
+<footer class="navbar"><button class="secondary" id="prev">← Anterior</button><span id="pos"></span><button id="next">Siguiente →</button></footer>
+<div id="toast" role="status"></div>
+
+<script type="text/plain" id="codigoGEE">
+// =====================================================================
+//  COBERTURA DEL SUELO Y TASAS DE CAMBIO · REGIÓN CENTRAL DE VERACRUZ
+//  Actividad 3 · Ingeniería en Agronomía
+//  1) Abre https://code.earthengine.google.com/  2) Pega TODO este código
+//  3) Pulsa Run UNA sola vez  4) Trabaja con el panel de la izquierda.
+//  Datos: Copernicus Sentinel-2 SR Harmonized + Cloud Score+ (Google).
+//  Versión didáctica 2026-10-21. No requiere assets privados.
+// =====================================================================
+
+// ---------------------------------------------------------------------
+// 0. RESPALDO DE POLÍGONOS (opcional)
+// Run borra los polígonos dibujados. Si los perdiste, pega aquí, en lugar
+// de null, el texto que generó «Respaldar polígonos» (empieza con { y
+// termina con }) y pulsa Run otra vez.
+// ---------------------------------------------------------------------
+var RESPALDO = null;
+
+// ---------------------------------------------------------------------
+// 1. CONFIGURACIÓN (no es necesario cambiar nada de aquí hacia abajo)
+// ---------------------------------------------------------------------
+var ZONAS = [
+  {nombre: 'Xalapa y alrededores', municipio: 'Xalapa',
+   caja: [-96.985, 19.4725, -96.835, 19.6075], punto: [-96.9270, 19.5410],
+   pistas: 'Agua: Laguna del Castillo (este) y Lagos del Dique (centro). ' +
+     'Vegetación: cafetales y bosque al sur y oeste. ' +
+     'Suelo/construido: centro de Xalapa, Banderilla y fraccionamientos nuevos.'},
+  {nombre: 'Veracruz y Boca del Río', municipio: 'Veracruz',
+   caja: [-96.235, 19.0975, -96.085, 19.2325], punto: [-96.1342, 19.1738],
+   pistas: 'Agua: mar abierto (lejos de la espuma), Laguna Olmeca y Río Jamapa. ' +
+     'Vegetación: humedal de Tembladeras y pastizales del oeste. ' +
+     'Suelo/construido: puerto, centro y zonas industriales.'},
+  {nombre: 'Medellín de Bravo y Laguna de Mandinga', municipio: 'Medellín de Bravo',
+   caja: [-96.185, 18.9725, -96.035, 19.1075], punto: [-96.1470, 19.0432],
+   pistas: 'Agua: Laguna de Mandinga, Río Jamapa y mar. ' +
+     'Vegetación: manglar, pastizales y potreros. ' +
+     'Suelo/construido: fraccionamientos nuevos, Riviera Veracruzana y playas.'},
+  {nombre: 'La Antigua, José Cardel y Chachalacas', municipio: 'La Antigua',
+   caja: [-96.435, 19.3025, -96.285, 19.4375], punto: [-96.3774, 19.3711],
+   pistas: 'Agua: ríos La Antigua y Actopan, y mar. ' +
+     'Vegetación: cañaverales, manglar y selva baja. ' +
+     'Suelo/construido: José Cardel, La Antigua, dunas de Chachalacas y parcelas recién cosechadas.'},
+  {nombre: 'Alvarado y su laguna', municipio: 'Alvarado',
+   caja: [-95.875, 18.7075, -95.725, 18.8425], punto: [-95.7607, 18.7711],
+   pistas: 'Agua: Laguna de Alvarado, Río Papaloapan y mar. ' +
+     'Vegetación: manglar, popal y pastizales. ' +
+     'Suelo/construido: ciudad de Alvarado, dunas y playa.'}
+];
+var ANIOS_INICIO = ['2019', '2020', '2021'];
+var ANIOS_FIN = ['2023', '2024', '2025'];
+
+// Mismas clases y colores que en las actividades 1 y 2.
+var CLASES = [
+  {nombre: 'Vegetación', corto: 'Vegetación', color: '39b878'},
+  {nombre: 'Suelo desnudo o construido', corto: 'Suelo/construido', color: 'e2ae66'},
+  {nombre: 'Agua', corto: 'Agua', color: '4c9de8'}
+];
+var COLORES = CLASES.map(function(c) { return c.color; });
+
+// Las cuatro bandas conocidas (B2, B3, B4, B8) + dos del infrarrojo de onda
+// corta (B11, B12), que separan mejor agua, suelo y construcciones.
+var BANDAS = ['B2', 'B3', 'B4', 'B8', 'B11', 'B12'];
+var NOMBRES_BANDA = ['B2 azul', 'B3 verde', 'B4 rojo', 'B8 NIR', 'B11 SWIR1', 'B12 SWIR2'];
+var ONDAS = [490, 560, 665, 842, 1610, 2190];
+// El clasificador usa las 6 bandas y dos índices calculados con ellas.
+var VARIABLES = BANDAS.concat(['NDVI', 'NDWI']);
+
+var CRS = 'EPSG:32614';
+var ESCALA = 10;
+var PROY = ee.Projection(CRS).atScale(ESCALA);
+var UMBRAL_CS = 0.60;          // Cloud Score+: 1 = despejado, 0 = nube
+var MUESTRAS_POR_CLASE = 500;  // píxeles por clase tomados de los polígonos
+var SEMILLA = 42;
+
+var VIS_RGB = {bands: ['B4', 'B3', 'B2'], min: 0.01, max: 0.26, gamma: 1.15};
+var VIS_FALSO = {bands: ['B8', 'B4', 'B3'], min: 0.01, max: 0.45};
+var VIS_COB = {min: 0, max: 2, palette: COLORES};
+
+// ---------------------------------------------------------------------
+// 2. DATOS: compuesto anual (mediana) sin nubes
+// ---------------------------------------------------------------------
+var S2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED');
+var CSPLUS = ee.ImageCollection('GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED');
+
+function compuestoAnual(anio, region) {
+  var inicio = ee.Date.fromYMD(anio, 1, 1);
+  var col = S2.filterBounds(region)
+    .filterDate(inicio, inicio.advance(1, 'year'))
+    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 70))
+    .linkCollection(CSPLUS, ['cs_cdf']);
+  var despejadas = col.map(function(img) {
+    return img.select(BANDAS).updateMask(img.select('cs_cdf').gte(UMBRAL_CS));
+  });
+  // Si algún píxel nunca estuvo despejado, se rellena con la mediana sin máscara.
+  var relleno = col.select(BANDAS).median();
+  var refl = despejadas.median().unmask(relleno)
+    .multiply(0.0001)
+    .setDefaultProjection(PROY)
+    .clip(region);
+  var ndvi = refl.normalizedDifference(['B8', 'B4']).rename('NDVI');
+  var ndwi = refl.normalizedDifference(['B3', 'B8']).rename('NDWI');
+  return refl.addBands(ndvi).addBands(ndwi).set('escenas', col.size());
+}
+
+// ---------------------------------------------------------------------
+// 3. ESTADO DE LA APLICACIÓN
+// ---------------------------------------------------------------------
+var S = {
+  cargado: false, zona: null, aoi: null, ini: null, fin: null,
+  compIni: null, compFin: null, clasIni: null, clasFin: null,
+  valIni: null, valFin: null, ocupado: false, comparando: false,
+  ultimaCapa: null, confirmarBorrado: false
+};
+
+// ---------------------------------------------------------------------
+// 4. MAPAS
+// ---------------------------------------------------------------------
+var mapa = ui.Map();
+mapa.setOptions('HYBRID');
+mapa.setControlVisibility({drawingToolsControl: false});
+mapa.style().set('cursor', 'crosshair');
+
+var dibujo = mapa.drawingTools();
+dibujo.setShown(false);
+dibujo.setLinked(false);
+var capas = CLASES.map(function(c) {
+  var capa = ui.Map.GeometryLayer({geometries: null, name: c.corto, color: c.color});
+  dibujo.layers().add(capa);
+  return capa;
+});
+
+var leyenda = ui.Panel({style: {position: 'bottom-left', padding: '6px 10px'}});
+leyenda.add(ui.Label('Clases', {fontWeight: 'bold', margin: '0 0 4px 0'}));
+CLASES.forEach(function(c) {
+  leyenda.add(ui.Panel([
+    ui.Label('', {backgroundColor: '#' + c.color, padding: '7px', margin: '2px 6px 2px 0'}),
+    ui.Label(c.nombre, {margin: '2px 0'})
+  ], ui.Panel.Layout.flow('horizontal')));
+});
+mapa.add(leyenda);
+
+var aviso = ui.Label('', {position: 'top-center', shown: false, padding: '6px 10px',
+  backgroundColor: '#fff8d6', fontSize: '13px', whiteSpace: 'pre-wrap'});
+mapa.add(aviso);
+
+// Mapas para la comparación con cortina (inicio | fin)
+var mapaIzq = ui.Map();
+var mapaDer = ui.Map();
+[mapaIzq, mapaDer].forEach(function(m) {
+  m.setOptions('HYBRID');
+  m.setControlVisibility({layerList: false, drawingToolsControl: false, fullscreenControl: false});
+});
+var rotuloIzq = ui.Label('', {position: 'top-left', fontWeight: 'bold', padding: '4px 8px'});
+var rotuloDer = ui.Label('', {position: 'top-right', fontWeight: 'bold', padding: '4px 8px'});
+mapaIzq.add(rotuloIzq);
+mapaDer.add(rotuloDer);
+var enlaceMapas = ui.Map.Linker([mapaIzq, mapaDer]);
+var cortina = ui.SplitPanel({firstPanel: mapaIzq, secondPanel: mapaDer,
+  orientation: 'horizontal', wipe: true, style: {stretch: 'both'}});
+
+// ---------------------------------------------------------------------
+// 5. PANEL DE CONTROL
+// ---------------------------------------------------------------------
+var panel = ui.Panel({style: {width: '400px', padding: '8px 12px'}});
+var ESTILO_PASO = {fontWeight: 'bold', fontSize: '15px', margin: '16px 0 4px 0', color: '#0b5d4b'};
+var ESTILO_NOTA = {fontSize: '12px', color: '#555', margin: '2px 0 6px 0', whiteSpace: 'pre-wrap'};
+
+function avisar(texto, esError) {
+  estado.setValue(texto);
+  estado.style().set('color', esError ? '#b00020' : '#333');
+  aviso.setValue(texto);
+  aviso.style().set({shown: true, backgroundColor: esError ? '#ffe3e3' : '#fff8d6'});
+}
+
+function boton(texto, accion) {
+  return ui.Button({label: texto, onClick: accion, style: {stretch: 'horizontal'}});
+}
+
+function enlace(texto) {
+  return ui.Label(texto, {fontSize: '12px', margin: '2px 8px'});
+}
+
+panel.add(ui.Label('Cobertura del suelo y tasas de cambio', {fontWeight: 'bold', fontSize: '19px', margin: '4px 0 0 0'}));
+panel.add(ui.Label('Región central de Veracruz · Sentinel-2 · Random Forest', ESTILO_NOTA));
+var estado = ui.Label('Elige tu zona y tus años, y pulsa «Cargar imágenes».', {fontSize: '13px', whiteSpace: 'pre-wrap'});
+panel.add(estado);
+
+// --- Paso 1
+panel.add(ui.Label('1 · Zona de trabajo y años', ESTILO_PASO));
+var selZona = ui.Select({
+  items: ZONAS.map(function(z, i) { return {label: (i + 1) + '. ' + z.nombre, value: String(i)}; }),
+  value: '0', style: {stretch: 'horizontal'}
+});
+panel.add(selZona);
+var selIni = ui.Select({items: ANIOS_INICIO, value: '2019'});
+var selFin = ui.Select({items: ANIOS_FIN, value: '2025'});
+panel.add(ui.Panel([ui.Label('Año inicial', {margin: '14px 4px 0 8px'}), selIni,
+                    ui.Label('Año final', {margin: '14px 4px 0 8px'}), selFin],
+                   ui.Panel.Layout.flow('horizontal')));
+panel.add(boton('▶ Cargar imágenes', function() { cargar(); }));
+var infoZona = ui.Label('', ESTILO_NOTA);
+panel.add(infoZona);
+var selComparar = ui.Select({items: ['Color verdadero', 'Falso color', 'Cobertura'], value: 'Color verdadero',
+  onChange: function() { if (S.comparando) actualizarComparacion(); }});
+var btnComparar = ui.Button({label: '⇆ Comparar inicio | fin (cortina)', onClick: function() { alternarComparacion(); },
+  style: {stretch: 'horizontal'}});
+panel.add(ui.Panel([selComparar, btnComparar], ui.Panel.Layout.flow('horizontal')));
+var descargasImg = ui.Panel();
+panel.add(descargasImg);
+
+// --- Paso 2
+panel.add(ui.Label('2 · Polígonos de entrenamiento', ESTILO_PASO));
+panel.add(ui.Label('Elige una clase y haz clic en el mapa para marcar cada vértice. ' +
+  'Cierra el polígono con doble clic. Dibuja al menos 3 polígonos por clase, ' +
+  'repartidos en la zona y en sitios que NO cambiaron entre ambos años.', ESTILO_NOTA));
+var contadores = [];
+CLASES.forEach(function(c, i) {
+  var contador = ui.Label('0 polígonos', {margin: '14px 0 0 6px', fontSize: '12px'});
+  contadores.push(contador);
+  panel.add(ui.Panel([
+    ui.Label('', {backgroundColor: '#' + c.color, padding: '10px', margin: '10px 4px 0 0'}),
+    ui.Button({label: '✏ ' + c.nombre, onClick: function() { dibujar(i); }, style: {width: '250px'}}),
+    contador
+  ], ui.Panel.Layout.flow('horizontal')));
+});
+var btnBorrar = ui.Button({label: '🗑 Borrar todos', onClick: function() { borrarTodo(); }});
+panel.add(ui.Panel([
+  ui.Button({label: '⏹ Terminar de dibujar', onClick: function() { terminarDibujo(); }}),
+  ui.Button({label: '↶ Deshacer último', onClick: function() { deshacer(); }}),
+  btnBorrar
+], ui.Panel.Layout.flow('horizontal')));
+var pistas = ui.Label('', ESTILO_NOTA);
+panel.add(pistas);
+panel.add(boton('💾 Respaldar polígonos (en Console)', function() { respaldar(); }));
+
+// --- Paso 3
+panel.add(ui.Label('3 · Firmas espectrales', ESTILO_PASO));
+panel.add(boton('📈 Calcular firmas espectrales', function() { calcularFirmas(); }));
+var panelFirmas = ui.Panel();
+panel.add(panelFirmas);
+
+// --- Paso 4
+panel.add(ui.Label('4 · Cobertura estimada y superficies', ESTILO_PASO));
+panel.add(boton('🗺 Clasificar inicio y fin', function() { clasificar(); }));
+var panelCobertura = ui.Panel();
+panel.add(panelCobertura);
+
+// --- Paso 5
+panel.add(ui.Label('5 · Evaluación (opcional)', ESTILO_PASO));
+panel.add(ui.Label('Usa el 30 % de los píxeles de tus polígonos que el modelo NO vio al entrenar.', ESTILO_NOTA));
+panel.add(boton('✅ Evaluar exactitud', function() { evaluar(); }));
+var panelEvaluacion = ui.Panel();
+panel.add(panelEvaluacion);
+
+panel.add(ui.Label('Gráficas y tablas: el botón ↗ de cada una abre una ventana para descargar PNG o CSV.', ESTILO_NOTA));
+panel.add(ui.Label('Datos: Copernicus Sentinel-2 (ESA), Cloud Score+ (Google), límites FAO GAUL. ' +
+  'Ejercicio didáctico: no sustituye un inventario oficial.', ESTILO_NOTA));
+
+ui.root.clear();
+ui.root.setLayout(ui.Panel.Layout.flow('horizontal'));
+ui.root.add(panel);
+ui.root.add(mapa);
+
+// ---------------------------------------------------------------------
+// 6. FUNCIONES DE LA INTERFAZ
+// ---------------------------------------------------------------------
+function cargar() {
+  if (S.ocupado) { avisar('Espera a que termine el cálculo anterior.'); return; }
+  if (S.comparando) alternarComparacion();
+  var iz = parseInt(selZona.getValue(), 10);
+  if (S.zona !== null && S.zona !== iz && totalPoligonos() > 0) {
+    capas.forEach(function(capa) { capa.geometries().reset([]); });
+    actualizarContadores();
+  }
+  var z = ZONAS[iz];
+  S.zona = iz;
+  S.ini = parseInt(selIni.getValue(), 10);
+  S.fin = parseInt(selFin.getValue(), 10);
+  S.aoi = ee.Geometry.Rectangle(z.caja, null, false);
+  S.compIni = compuestoAnual(S.ini, S.aoi);
+  S.compFin = compuestoAnual(S.fin, S.aoi);
+  S.clasIni = S.clasFin = S.valIni = S.valFin = null;
+  S.cargado = true;
+  panelFirmas.clear();
+  panelCobertura.clear();
+  panelEvaluacion.clear();
+  pistas.setValue('Sugerencias para ' + z.nombre + ': ' + z.pistas);
+  redibujarCapas();
+  mapa.centerObject(S.aoi, 13);
+
+  infoZona.setValue('Calculando número de escenas y área...');
+  ee.Dictionary({
+    ini: S.compIni.get('escenas'),
+    fin: S.compFin.get('escenas'),
+    ha: S.aoi.area(1).divide(10000)
+  }).evaluate(function(r, err) {
+    if (err) { infoZona.setValue('Error: ' + err); return; }
+    infoZona.setValue(z.nombre + ' · área de trabajo ≈ ' + formato(r.ha, 0) + ' ha\n' +
+      'Compuesto ' + S.ini + ': mediana de ' + r.ini + ' escenas · ' +
+      'Compuesto ' + S.fin + ': mediana de ' + r.fin + ' escenas');
+  });
+
+  descargasImg.clear();
+  descargasImg.add(ui.Label('Imágenes PNG para tu reporte (clic → se abre → guardar):', ESTILO_NOTA));
+  enlacePNG('Color verdadero ' + S.ini, S.compIni.visualize(VIS_RGB), descargasImg);
+  enlacePNG('Color verdadero ' + S.fin, S.compFin.visualize(VIS_RGB), descargasImg);
+  avisar('Imágenes ' + S.ini + ' y ' + S.fin + ' cargadas (pueden tardar unos segundos en verse).\n' +
+    'Compara ambos años con la cortina y luego dibuja tus polígonos (paso 2).');
+}
+
+function redibujarCapas() {
+  var z = ZONAS[S.zona];
+  var muni = ee.FeatureCollection('FAO/GAUL/2015/level2').filterBounds(ee.Geometry.Point(z.punto));
+  var capasMapa = [
+    ui.Map.Layer(S.compIni, VIS_FALSO, 'Falso color ' + S.ini, false),
+    ui.Map.Layer(S.compFin, VIS_FALSO, 'Falso color ' + S.fin, false),
+    ui.Map.Layer(S.compIni, VIS_RGB, 'Color verdadero ' + S.ini, false),
+    ui.Map.Layer(S.compFin, VIS_RGB, 'Color verdadero ' + S.fin, true)
+  ];
+  if (S.clasIni) {
+    capasMapa.push(ui.Map.Layer(S.clasIni, VIS_COB, 'Cobertura ' + S.ini, false));
+    capasMapa.push(ui.Map.Layer(S.clasFin, VIS_COB, 'Cobertura ' + S.fin, true));
+  }
+  capasMapa.push(ui.Map.Layer(ee.Image().byte().paint(muni, 1, 2), {palette: ['ff66ff']},
+    'Límite municipal de ' + z.municipio + ' (referencia)', true, 0.8));
+  capasMapa.push(ui.Map.Layer(ee.Image().byte().paint(ee.FeatureCollection([ee.Feature(S.aoi)]), 1, 3),
+    {palette: ['ffffff']}, 'Área de trabajo'));
+  mapa.layers().reset(capasMapa);
+}
+
+function enlacePNG(etiqueta, imagenVis, destino) {
+  var lbl = enlace('⏳ ' + etiqueta + ' (preparando...)');
+  destino.add(lbl);
+  imagenVis.getThumbURL({region: S.aoi, dimensions: 1200, format: 'png'}, function(url, err) {
+    if (err || !url) { lbl.setValue('⚠ ' + etiqueta + ': ' + err); return; }
+    lbl.setValue('⬇ ' + etiqueta + ' (PNG)');
+    lbl.setUrl(url);
+    lbl.style().set({color: '#1a73e8'});
+  });
+}
+
+function dibujar(i) {
+  if (!S.cargado) { avisar('Primero carga la zona y los años (paso 1).', true); return; }
+  if (S.comparando) alternarComparacion();
+  dibujo.setSelected(capas[i]);
+  dibujo.setShape('polygon');
+  dibujo.draw();
+  avisar('Dibujando: ' + CLASES[i].nombre + '. Clic = vértice; doble clic = cerrar polígono.\n' +
+    'Puedes seguir dibujando de esta clase; cambia de clase con su botón.');
+}
+
+function terminarDibujo() {
+  dibujo.setShape(null);
+  dibujo.stop();
+  avisar('Dibujo detenido. Puedes mover vértices haciendo clic sobre un polígono.');
+}
+
+function totalPoligonos() {
+  return capas.reduce(function(s, capa) { return s + capa.geometries().length(); }, 0);
+}
+
+function actualizarContadores() {
+  capas.forEach(function(capa, i) {
+    var n = capa.geometries().length();
+    contadores[i].setValue(n + (n === 1 ? ' polígono' : ' polígonos'));
+    contadores[i].style().set('color', n >= 3 ? '#0b7a3b' : '#b00020');
+  });
+}
+
+function cambioPoligonos(geometria, capa) {
+  if (capa) S.ultimaCapa = capa;
+  S.confirmarBorrado = false;
+  btnBorrar.setLabel('🗑 Borrar todos');
+  actualizarContadores();
+  if (S.clasIni) {
+    avisar('Cambiaste los polígonos: vuelve a calcular las firmas y a clasificar para actualizar resultados.');
+  }
+}
+dibujo.onDraw(cambioPoligonos);
+dibujo.onEdit(cambioPoligonos);
+dibujo.onErase(cambioPoligonos);
+
+function deshacer() {
+  var capa = S.ultimaCapa;
+  if (!capa || capa.geometries().length() === 0) {
+    avisar('No hay un polígono reciente para deshacer.'); return;
+  }
+  var lista = capa.geometries();
+  lista.remove(lista.get(lista.length() - 1));
+  cambioPoligonos(null, null);
+  avisar('Se eliminó el último polígono de ' + capa.getName() + '.');
+}
+
+function borrarTodo() {
+  if (!S.confirmarBorrado) {
+    S.confirmarBorrado = true;
+    btnBorrar.setLabel('¿Seguro? clic otra vez');
+    return;
+  }
+  capas.forEach(function(capa) { capa.geometries().reset([]); });
+  cambioPoligonos(null, null);
+  avisar('Se borraron todos los polígonos.');
+}
+
+function poligonosFC() {
+  var feats = [];
+  capas.forEach(function(capa, i) {
+    capa.geometries().forEach(function(g) {
+      feats.push(ee.Feature(g, {clase: i, nombre: CLASES[i].nombre}));
+    });
+  });
+  return ee.FeatureCollection(feats);
+}
+
+function listo(minimo) {
+  if (!S.cargado) { avisar('Primero carga la zona y los años (paso 1).', true); return false; }
+  if (S.ocupado) { avisar('Espera a que termine el cálculo anterior.'); return false; }
+  var faltan = CLASES.filter(function(c, i) { return capas[i].geometries().length() < minimo; })
+    .map(function(c) { return c.nombre; });
+  if (faltan.length) {
+    avisar('Necesitas al menos ' + minimo + ' polígonos de: ' + faltan.join(', ') + '.', true);
+    return false;
+  }
+  return true;
+}
+
+function respaldar() {
+  if (totalPoligonos() === 0) { avisar('Aún no hay polígonos para respaldar.'); return; }
+  poligonosFC().evaluate(function(fc, err) {
+    if (err) { avisar('No se pudo respaldar: ' + err, true); return; }
+    var datos = {zona: S.zona, ini: S.ini, fin: S.fin, poligonos: fc.features.map(function(f) {
+      return {clase: f.properties.clase, tipo: f.geometry.type, coords: redondear(f.geometry.coordinates)};
+    })};
+    print('RESPALDO DE POLÍGONOS. Copia TODO el texto de abajo (de { a }) y guárdalo en un archivo de texto. ' +
+      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» y pulsa Run.');
+    print(JSON.stringify(datos));
+    avisar('Respaldo listo en la pestaña Console (derecha). Cópialo y guárdalo.');
+  });
+}
+
+function redondear(x) {
+  if (typeof x === 'number') return Math.round(x * 1e6) / 1e6;
+  return x.map(redondear);
+}
+
+function formato(x, dec) {
+  var s = Number(x).toFixed(dec);
+  var partes = s.split('.');
+  partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return partes.join('.');
+}
+
+// --- Paso 3: firmas espectrales -------------------------------------
+function calcularFirmas() {
+  if (!listo(1)) return;
+  S.ocupado = true;
+  avisar('Calculando las firmas espectrales de tus polígonos...');
+  var fc = poligonosFC();
+  var reductor = ee.Reducer.mean()
+    .combine({reducer2: ee.Reducer.stdDev(), sharedInputs: true})
+    .combine({reducer2: ee.Reducer.count(), sharedInputs: true});
+  var res = {};
+  [['ini', S.compIni], ['fin', S.compFin]].forEach(function(par) {
+    CLASES.forEach(function(c, i) {
+      res[par[0] + i] = par[1].select(BANDAS).reduceRegion({
+        reducer: reductor, geometry: fc.filter(ee.Filter.eq('clase', i)).geometry(),
+        crs: CRS, scale: ESCALA, maxPixels: 1e9, tileScale: 4
+      });
+    });
+  });
+  ee.Dictionary(res).evaluate(function(r, err) {
+    S.ocupado = false;
+    if (err) { avisar('Error al calcular firmas: ' + err, true); return; }
+    mostrarFirmas(r);
+    descargaPoligonos(fc);
+  });
+}
+
+function mostrarFirmas(r) {
+  panelFirmas.clear();
+  var periodos = [['ini', S.ini], ['fin', S.fin]];
+  var cols = [{id: 'x', label: 'Longitud de onda (nm)', type: 'number'}];
+  var series = {};
+  var k = 0;
+  CLASES.forEach(function(c, i) {
+    periodos.forEach(function(p, j) {
+      cols.push({id: p[0] + i, label: c.corto + ' ' + p[1], type: 'number'});
+      series[k] = j ? {color: '#' + c.color, lineDashStyle: [6, 4], pointShape: 'triangle'}
+                    : {color: '#' + c.color, pointShape: 'circle'};
+      k++;
+    });
+  });
+  var filas = BANDAS.map(function(b, bi) {
+    var celdas = [{v: ONDAS[bi], f: NOMBRES_BANDA[bi] + ' (' + ONDAS[bi] + ' nm)'}];
+    CLASES.forEach(function(c, i) {
+      periodos.forEach(function(p) {
+        var v = r[p[0] + i][b + '_mean'];
+        celdas.push({v: v === null ? null : Math.round(v * 10000) / 10000});
+      });
+    });
+    return {c: celdas};
+  });
+  var grafica = ui.Chart({cols: cols, rows: filas}, 'LineChart', {
+    title: 'Firmas espectrales medias · ' + ZONAS[S.zona].nombre,
+    hAxis: {title: 'Longitud de onda (nm)', viewWindow: {min: 400, max: 2300},
+            ticks: ONDAS.map(function(w, bi) { return {v: w, f: BANDAS[bi]}; })},
+    vAxis: {title: 'Reflectancia (0–1)', viewWindow: {min: 0}},
+    lineWidth: 2, pointSize: 6, series: series,
+    legend: {position: 'bottom', maxLines: 3},
+    chartArea: {left: 55, top: 40, width: '85%', height: '62%'}
+  });
+  grafica.style().set({height: '380px'});
+  panelFirmas.add(ui.Label('Línea continua = ' + S.ini + ' · línea punteada = ' + S.fin, ESTILO_NOTA));
+  panelFirmas.add(grafica);
+
+  // Tabla: promedio ± desviación estándar por banda
+  var tcols = [{label: 'Clase', type: 'string'}, {label: 'Año', type: 'string'}];
+  BANDAS.forEach(function(b) { tcols.push({label: b, type: 'number'}); });
+  tcols.push({label: 'Píxeles', type: 'number'});
+  var tfilas = [];
+  var pocos = [];
+  CLASES.forEach(function(c, i) {
+    periodos.forEach(function(p) {
+      var d = r[p[0] + i];
+      var celdas = [{v: c.corto}, {v: String(p[1])}];
+      BANDAS.forEach(function(b) {
+        var m = d[b + '_mean'], s = d[b + '_stdDev'];
+        celdas.push(m === null ? {v: null} :
+          {v: Math.round(m * 10000) / 10000, f: m.toFixed(4) + ' ± ' + (s || 0).toFixed(4)});
+      });
+      var n = d.B2_count || 0;
+      celdas.push({v: n});
+      if (n < 50 && pocos.indexOf(c.nombre) < 0) pocos.push(c.nombre);
+      tfilas.push({c: celdas});
+    });
+  });
+  var tabla = ui.Chart({cols: tcols, rows: tfilas}, 'Table', {allowHtml: false});
+  panelFirmas.add(ui.Label('Tabla de datos: reflectancia media ± desviación estándar', ESTILO_NOTA));
+  panelFirmas.add(tabla);
+  if (pocos.length) {
+    avisar('Firmas listas, pero hay pocos píxeles en: ' + pocos.join(', ') +
+      '. Dibuja polígonos más grandes o más numerosos.', true);
+  } else {
+    avisar('Firmas listas. Descarga la gráfica (botón ↗) y la tabla para tu reporte.');
+  }
+}
+
+function descargaPoligonos(fc) {
+  var destino = ui.Panel();
+  panelFirmas.add(destino);
+  var relleno = ee.Image().byte().paint(fc, 'clase').visualize({min: 0, max: 2, palette: COLORES, opacity: 0.65});
+  var borde = ee.Image().byte().paint(fc, 0, 2).visualize({palette: ['ffffff']});
+  enlacePNG('Polígonos de entrenamiento sobre ' + S.fin, S.compFin.visualize(VIS_RGB).blend(relleno).blend(borde), destino);
+  var lbl = enlace('⏳ Polígonos en formato KML (preparando...)');
+  destino.add(lbl);
+  fc.getDownloadURL('kml', ['clase', 'nombre'], 'poligonos_entrenamiento', function(url, err) {
+    if (err || !url) { lbl.setValue('⚠ KML: ' + err); return; }
+    lbl.setValue('⬇ Polígonos de entrenamiento (KML, para Google Earth)');
+    lbl.setUrl(url);
+    lbl.style().set({color: '#1a73e8'});
+  });
+}
+
+// --- Paso 4: clasificación y superficies ----------------------------
+function entrenar(comp, fc) {
+  var claseImg = ee.Image().byte().paint(fc, 'clase').rename('clase');
+  var muestras = comp.select(VARIABLES).addBands(claseImg).stratifiedSample({
+    numPoints: MUESTRAS_POR_CLASE, classBand: 'clase', region: fc.geometry(),
+    scale: ESCALA, seed: SEMILLA, tileScale: 4, geometries: false
+  }).randomColumn('azar', SEMILLA);
+  // 70 % entrena el modelo; 30 % se guarda para evaluarlo (paso 5).
+  var entrenamiento = muestras.filter(ee.Filter.lt('azar', 0.7));
+  var validacion = muestras.filter(ee.Filter.gte('azar', 0.7));
+  var modelo = ee.Classifier.smileRandomForest({numberOfTrees: 100, seed: SEMILLA})
+    .train({features: entrenamiento, classProperty: 'clase', inputProperties: VARIABLES});
+  return {
+    mapa: comp.select(VARIABLES).classify(modelo).rename('clase').toByte(),
+    validacion: validacion.classify(modelo)
+  };
+}
+
+function superficies(clas, escala) {
+  return ee.Image.pixelArea().divide(10000).rename('ha').addBands(clas).reduceRegion({
+    reducer: ee.Reducer.sum().group({groupField: 1, groupName: 'clase'}),
+    geometry: S.aoi, crs: CRS, scale: escala, maxPixels: 1e10, tileScale: 8
+  }).get('groups');
+}
+
+function clasificar() {
+  if (!listo(2)) return;
+  S.ocupado = true;
+  avisar('Entrenando Random Forest y clasificando ' + S.ini + ' y ' + S.fin + '... (puede tardar 1-2 min)');
+  var fc = poligonosFC();
+  var rIni = entrenar(S.compIni, fc);
+  var rFin = entrenar(S.compFin, fc);
+  S.clasIni = rIni.mapa; S.clasFin = rFin.mapa;
+  S.valIni = rIni.validacion; S.valFin = rFin.validacion;
+  redibujarCapas();
+  panelCobertura.clear();
+  panelEvaluacion.clear();
+  panelCobertura.add(ui.Label('Calculando superficies...', ESTILO_NOTA));
+  calcularSuperficies(ESCALA);
+  var destino = ui.Panel();
+  panelCobertura.add(destino);
+  destino.add(ui.Label('Mapas PNG para tu reporte:', ESTILO_NOTA));
+  enlacePNG('Cobertura ' + S.ini, S.clasIni.visualize(VIS_COB), destino);
+  enlacePNG('Cobertura ' + S.fin, S.clasFin.visualize(VIS_COB), destino);
+}
+
+function calcularSuperficies(escala) {
+  ee.Dictionary({ini: superficies(S.clasIni, escala), fin: superficies(S.clasFin, escala)})
+    .evaluate(function(r, err) {
+      if (err) {
+        if (escala === ESCALA) {
+          avisar('El cálculo a ' + escala + ' m tardó demasiado; reintentando a ' + (escala * 2) + ' m...');
+          calcularSuperficies(escala * 2);
+        } else {
+          S.ocupado = false;
+          avisar('Error al calcular superficies: ' + err + '\nEspera un minuto y vuelve a pulsar «Clasificar».', true);
+        }
+        return;
+      }
+      S.ocupado = false;
+      mostrarSuperficies(r, escala);
+    });
+}
+
+function mostrarSuperficies(r, escala) {
+  function haDe(grupos, i) {
+    var g = (grupos || []).filter(function(x) { return x.clase === i; })[0];
+    return g ? g.sum : 0;
+  }
+  var filas = [];
+  var tIni = 0, tFin = 0;
+  CLASES.forEach(function(c, i) {
+    var a = haDe(r.ini, i), b = haDe(r.fin, i);
+    tIni += a; tFin += b;
+    filas.push({c: [{v: c.nombre}, {v: a, f: formato(a, 2)}, {v: b, f: formato(b, 2)}]});
+  });
+  filas.push({c: [{v: 'TOTAL'}, {v: tIni, f: formato(tIni, 2)}, {v: tFin, f: formato(tFin, 2)}]});
+  var tabla = ui.Chart({
+    cols: [{label: 'Clase', type: 'string'},
+           {label: 'Superficie ' + S.ini + ' (ha)', type: 'number'},
+           {label: 'Superficie ' + S.fin + ' (ha)', type: 'number'}],
+    rows: filas
+  }, 'Table');
+  panelCobertura.widgets().set(0, ui.Label('Superficie por clase (hectáreas). Copia estos valores ' +
+    'exactamente en tu cuadernillo; ahí calcularás la diferencia y la tasa de cambio.' +
+    (escala > ESCALA ? '\n(Calculado con píxeles de ' + escala + ' m por tiempo de cómputo.)' : ''), ESTILO_NOTA));
+  panelCobertura.insert(1, tabla);
+  avisar('Clasificación lista. Revisa las capas «Cobertura» y la tabla de superficies.\n' +
+    'Activa y desactiva capas (Layers) o usa la cortina con «Cobertura» para comparar.');
+}
+
+// --- Paso 5: evaluación ------------------------------------------------
+function evaluar() {
+  if (!S.valIni) { avisar('Primero clasifica (paso 4).', true); return; }
+  if (S.ocupado) { avisar('Espera a que termine el cálculo anterior.'); return; }
+  S.ocupado = true;
+  avisar('Calculando matrices de confusión...');
+  var orden = [0, 1, 2];
+  ee.Dictionary({
+    ini: S.valIni.errorMatrix('clase', 'classification', orden).array(),
+    fin: S.valFin.errorMatrix('clase', 'classification', orden).array()
+  }).evaluate(function(r, err) {
+    S.ocupado = false;
+    if (err) { avisar('Error en la evaluación: ' + err, true); return; }
+    mostrarEvaluacion(r);
+  });
+}
+
+function mostrarEvaluacion(r) {
+  panelEvaluacion.clear();
+  var metricas = [];
+  [['ini', S.ini], ['fin', S.fin]].forEach(function(p) {
+    var m = r[p[0]];
+    var total = 0;
+    m.forEach(function(fila) { fila.forEach(function(v) { total += v; }); });
+    var cols = [{label: 'Referencia ↓ / Clasificado →', type: 'string'}];
+    CLASES.forEach(function(c) { cols.push({label: c.corto, type: 'number'}); });
+    cols.push({label: 'Total', type: 'number'});
+    var filas = CLASES.map(function(c, i) {
+      var celdas = [{v: c.corto}];
+      m[i].forEach(function(v) { celdas.push({v: v}); });
+      celdas.push({v: m[i].reduce(function(a, b) { return a + b; }, 0)});
+      return {c: celdas};
+    });
+    panelEvaluacion.add(ui.Label('Matriz de confusión ' + p[1] + ' (' + total + ' píxeles de validación)',
+      {fontWeight: 'bold', fontSize: '13px', margin: '8px 0 2px 0'}));
+    panelEvaluacion.add(ui.Chart({cols: cols, rows: filas}, 'Table'));
+    CLASES.forEach(function(c, i) {
+      var vp = m[i][i];
+      var fn = m[i].reduce(function(a, b) { return a + b; }, 0) - vp;
+      var fp = m.reduce(function(a, fila) { return a + fila[i]; }, 0) - vp;
+      var vn = total - vp - fn - fp;
+      metricas.push({clase: c.corto, anio: p[1], vp: vp, fn: fn, fp: fp, vn: vn,
+        sens: vp + fn ? 100 * vp / (vp + fn) : 0,
+        esp: vn + fp ? 100 * vn / (vn + fp) : 0,
+        prec: vp + fp ? 100 * vp / (vp + fp) : 0});
+    });
+  });
+
+  var tcols = ['Clase', 'Año', 'VP', 'FN', 'FP', 'VN', 'Sensibilidad %', 'Especificidad %', 'Precisión %']
+    .map(function(t, i) { return {label: t, type: i < 2 ? 'string' : 'number'}; });
+  var tfilas = metricas.map(function(x) {
+    return {c: [{v: x.clase}, {v: String(x.anio)}, {v: x.vp}, {v: x.fn}, {v: x.fp}, {v: x.vn},
+      {v: Math.round(x.sens * 10) / 10}, {v: Math.round(x.esp * 10) / 10}, {v: Math.round(x.prec * 10) / 10}]};
+  });
+  panelEvaluacion.add(ui.Label('VP = verdaderos positivos · FN = falsos negativos · FP = falsos positivos · ' +
+    'VN = verdaderos negativos', ESTILO_NOTA));
+  panelEvaluacion.add(ui.Chart({cols: tcols, rows: tfilas}, 'Table'));
+
+  var gfilas = metricas.map(function(x) {
+    return {c: [{v: x.clase + ' ' + x.anio}, {v: Math.round(x.sens * 10) / 10},
+      {v: Math.round(x.esp * 10) / 10}, {v: Math.round(x.prec * 10) / 10}]};
+  });
+  var grafica = ui.Chart({
+    cols: [{label: 'Clase y año', type: 'string'}, {label: 'Sensibilidad', type: 'number'},
+           {label: 'Especificidad', type: 'number'}, {label: 'Precisión', type: 'number'}],
+    rows: gfilas
+  }, 'ColumnChart', {
+    title: 'Evaluación por clase (%) · ' + ZONAS[S.zona].nombre,
+    vAxis: {title: '%', viewWindow: {min: 0, max: 100}},
+    colors: ['#2f6fb0', '#e08a1e', '#8a4fbf'],
+    legend: {position: 'bottom'},
+    chartArea: {left: 45, top: 40, width: '88%', height: '60%'}
+  });
+  grafica.style().set({height: '340px'});
+  panelEvaluacion.add(grafica);
+  panelEvaluacion.add(ui.Label('Sensibilidad = VP/(VP+FN): de lo que realmente es la clase, cuánto encontró.\n' +
+    'Especificidad = VN/(VN+FP): de lo que NO es la clase, cuánto descartó bien.\n' +
+    'Precisión = VP/(VP+FP): de lo que el mapa llamó esa clase, cuánto era correcto.\n' +
+    'Ojo: los píxeles de validación vienen de tus mismos polígonos, así que estos valores tienden a ser optimistas.',
+    ESTILO_NOTA));
+  avisar('Evaluación lista. Descarga la gráfica (↗) y captura las tablas para tu reporte.');
+}
+
+// --- Comparación con cortina -------------------------------------------
+function actualizarComparacion() {
+  var modo = selComparar.getValue();
+  var izq = S.compIni, der = S.compFin, vis = VIS_RGB;
+  if (modo === 'Falso color') vis = VIS_FALSO;
+  if (modo === 'Cobertura') {
+    if (!S.clasIni) {
+      avisar('La cobertura estará disponible después del paso 4. Mostrando color verdadero.');
+      selComparar.setValue('Color verdadero', false);
+      modo = 'Color verdadero';
+    } else {
+      izq = S.clasIni; der = S.clasFin; vis = VIS_COB;
+    }
+  }
+  var borde = ee.Image().byte().paint(ee.FeatureCollection([ee.Feature(S.aoi)]), 1, 3);
+  mapaIzq.layers().reset([ui.Map.Layer(izq, vis, modo + ' ' + S.ini),
+    ui.Map.Layer(borde, {palette: ['ffffff']}, 'Área de trabajo')]);
+  mapaDer.layers().reset([ui.Map.Layer(der, vis, modo + ' ' + S.fin),
+    ui.Map.Layer(borde, {palette: ['ffffff']}, 'Área de trabajo')]);
+  rotuloIzq.setValue('◀ ' + S.ini + ' · ' + modo);
+  rotuloDer.setValue(modo + ' · ' + S.fin + ' ▶');
+}
+
+function alternarComparacion() {
+  if (!S.cargado) { avisar('Primero carga la zona y los años (paso 1).', true); return; }
+  if (!S.comparando) {
+    var b = mapa.getBounds();
+    var z = mapa.getZoom();
+    terminarDibujo();
+    actualizarComparacion();
+    ui.root.widgets().set(1, cortina);
+    mapaIzq.setCenter((b[0] + b[2]) / 2, (b[1] + b[3]) / 2, z);
+    S.comparando = true;
+    btnComparar.setLabel('↩ Volver al mapa de trabajo');
+    estado.setValue('Arrastra la barra central para comparar ' + S.ini + ' (izquierda) con ' + S.fin + ' (derecha).');
+  } else {
+    ui.root.widgets().set(1, mapa);
+    S.comparando = false;
+    btnComparar.setLabel('⇆ Comparar inicio | fin (cortina)');
+    estado.setValue('De vuelta en el mapa de trabajo.');
+  }
+}
+
+// ---------------------------------------------------------------------
+// 7. INICIO (y recuperación del respaldo, si existe)
+// ---------------------------------------------------------------------
+mapa.setCenter(-96.45, 19.15, 9);
+actualizarContadores();
+if (RESPALDO && RESPALDO.poligonos) {
+  selZona.setValue(String(RESPALDO.zona), false);
+  if (RESPALDO.ini) selIni.setValue(String(RESPALDO.ini), false);
+  if (RESPALDO.fin) selFin.setValue(String(RESPALDO.fin), false);
+  RESPALDO.poligonos.forEach(function(p) {
+    var g = p.tipo === 'MultiPolygon' ? ee.Geometry.MultiPolygon(p.coords) : ee.Geometry.Polygon(p.coords);
+    capas[p.clase].geometries().add(g);
+  });
+  actualizarContadores();
+  cargar();
+  avisar('Se recuperaron ' + RESPALDO.poligonos.length + ' polígonos del respaldo.');
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script>
+'use strict';
+/* ================================================================ DATOS FIJOS */
+const ZONAS = [
+  {nombre:'Xalapa y alrededores', municipio:'Xalapa', caja:[-96.985,19.4725,-96.835,19.6075],
+   desc:'Capital del estado, en la transición entre la Sierra Madre Oriental y la planicie costera, a unos 1,400 m de altitud. El área de trabajo incluye la ciudad de Xalapa, Banderilla y parte de Emiliano Zapata y Tlalnelhuayocan, con bosque mesófilo, cafetales, zonas de expansión urbana y cuerpos de agua pequeños como la Laguna del Castillo y los Lagos del Dique.',
+   pistas:'Agua: Laguna del Castillo (este) y Lagos del Dique. Vegetación: cafetales y bosque al sur y oeste. Suelo/construido: centro, Banderilla, fraccionamientos nuevos.'},
+  {nombre:'Veracruz y Boca del Río', municipio:'Veracruz', caja:[-96.235,19.0975,-96.085,19.2325],
+   desc:'Zona conurbada más poblada del estado, en la planicie costera del Golfo de México. Incluye el puerto de Veracruz, Boca del Río, la desembocadura del río Jamapa y humedales como Tembladeras-Laguna Olmeca, rodeados de pastizales y áreas en urbanización.',
+   pistas:'Agua: mar abierto (lejos de la espuma), Laguna Olmeca, río Jamapa. Vegetación: humedal de Tembladeras, pastizales. Suelo/construido: puerto, centro, zonas industriales.'},
+  {nombre:'Medellín de Bravo y Laguna de Mandinga', municipio:'Medellín de Bravo', caja:[-96.185,18.9725,-96.035,19.1075],
+   desc:'Al sur de la conurbación Veracruz-Boca del Río. Es un área de rápido crecimiento habitacional entre potreros, el río Jamapa y el sistema lagunar de Mandinga, bordeado por manglares, con la franja costera de la Riviera Veracruzana.',
+   pistas:'Agua: Laguna de Mandinga, río Jamapa, mar. Vegetación: manglar, pastizales, potreros. Suelo/construido: fraccionamientos nuevos, Riviera Veracruzana, playas.'},
+  {nombre:'La Antigua, José Cardel y Chachalacas', municipio:'La Antigua', caja:[-96.435,19.3025,-96.285,19.4375],
+   desc:'Planicie costera agrícola, dominada por caña de azúcar, atravesada por los ríos La Antigua y Actopan, con la ciudad de José Cardel, manglares y las dunas costeras de Chachalacas. Es la zona de las actividades 1 y 2, ahora ampliada.',
+   pistas:'Agua: ríos La Antigua y Actopan, mar. Vegetación: cañaverales, manglar, selva baja. Suelo/construido: José Cardel, La Antigua, dunas de Chachalacas, parcelas recién cosechadas.'},
+  {nombre:'Alvarado y su laguna', municipio:'Alvarado', caja:[-95.875,18.7075,-95.725,18.8425],
+   desc:'Zona del bajo Papaloapan con la Laguna de Alvarado, extensos manglares, popales y humedales, áreas ganaderas, dunas costeras y la ciudad-puerto pesquera de Alvarado.',
+   pistas:'Agua: Laguna de Alvarado, río Papaloapan, mar. Vegetación: manglar, popal, pastizales. Suelo/construido: ciudad de Alvarado, dunas, playa.'}
+];
+const CLASES = [
+  {nombre:'Vegetación', corto:'Vegetación', color:'#39b878'},
+  {nombre:'Suelo desnudo o construido', corto:'Suelo/construido', color:'#e2ae66'},
+  {nombre:'Agua', corto:'Agua', color:'#4c9de8'}
+];
+const IMGS = {
+  rgbIni:{t:'Color verdadero · año inicial', h:'PNG del enlace «Color verdadero» del año inicial'},
+  rgbFin:{t:'Color verdadero · año final', h:'PNG del enlace «Color verdadero» del año final'},
+  poligonos:{t:'Polígonos de entrenamiento', h:'PNG del enlace del paso 3 o captura del mapa'},
+  firmas:{t:'Gráfica de firmas espectrales', h:'PNG descargado con el ícono ↗'},
+  tablaFirmas:{t:'Tabla de datos de las firmas', h:'Captura PNG/JPG o archivo CSV descargado con ↗'},
+  cobIni:{t:'Mapa de cobertura · año inicial', h:'PNG del enlace «Cobertura» del año inicial'},
+  cobFin:{t:'Mapa de cobertura · año final', h:'PNG del enlace «Cobertura» del año final'},
+  evalMatriz:{t:'Matrices de confusión y métricas', h:'Captura de las tablas (opcional)'},
+  evalGrafica:{t:'Gráfica de evaluación', h:'PNG con ↗ (opcional)'}
+};
+const ROLES = ['Operación de Earth Engine','Registro de datos y capturas','Verificación de cálculos','Redacción del reporte','Coordinación y revisión'];
+const MIN_TXT = 120;
+
+/* ================================================================ ESTADO */
+const hoy = new Date().toISOString().slice(0,10);
+const DEF = () => ({v:1, equipo:'', integrantes:[{nombre:'',rol:''},{nombre:'',rol:''}], grupo:'', docente:'', fecha:hoy,
+  zona:'', ini:'2019', fin:'2025', npol:['','',''], q1:'', q2:'', q3:'', q4:'', q5:'',
+  areas:{ini:['','',''], fin:['','','']}, dif:['','',''], pct:['','',''], verificado:false, intentos:0,
+  img:{}, csv:null, capitulo:'inicio'});
+let S = DEF();
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+function toast(msg, ms=3200){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>t.style.display='none', ms); }
+function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+const fmt = (x, d=2) => Number(x).toLocaleString('es-MX',{minimumFractionDigits:d, maximumFractionDigits:d});
+const fmtS = (x, d=2) => (x>0?'+':'') + fmt(x,d);
+
+/* Convierte lo que escribe el alumnado en número: acepta 1,234.56 · 1234.56 · 1234,56 · −12 */
+function num(v){
+  if (v===null || v===undefined) return NaN;
+  let s = String(v).trim().replace(/[\s%]/g,'').replace(/[−–—]/g,'-');
+  if (!s) return NaN;
+  if (s.includes(',') && s.includes('.')) s = s.replace(/,/g,'');
+  else if (s.includes(',')) { const p=s.split(','); s = (p.length===2 && p[1].length!==3) ? p.join('.') : p.join(''); }
+  if (!/^[+-]?\d*\.?\d+$/.test(s)) return NaN;
+  return parseFloat(s);
+}
+function areaCaja(c){ const R=6371008.8, r=Math.PI/180; return R*R*(c[2]-c[0])*r*(Math.sin(c[3]*r)-Math.sin(c[1]*r))/1e4; }
+
+/* ================================================================ ALMACENAMIENTO (IndexedDB) */
+const DB = {
+  db:null,
+  open(){ return new Promise((res,rej)=>{ try{ const q=indexedDB.open('actividad3_cobertura',1); q.onupgradeneeded=()=>q.result.createObjectStore('kv'); q.onsuccess=()=>{this.db=q.result;res();}; q.onerror=()=>rej(q.error);}catch(e){rej(e);} }); },
+  get(k){ return new Promise((res,rej)=>{ const q=this.db.transaction('kv').objectStore('kv').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); }); },
+  set(k,v){ return new Promise((res,rej)=>{ const tx=this.db.transaction('kv','readwrite'); tx.objectStore('kv').put(v,k); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); }); },
+  del(k){ return new Promise((res,rej)=>{ const tx=this.db.transaction('kv','readwrite'); tx.objectStore('kv').delete(k); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); }); }
+};
+let dbOK = false, saveTimer = null;
+function guardar(){
+  clearTimeout(saveTimer);
+  $('#saveState').textContent = 'Guardando…';
+  saveTimer = setTimeout(async ()=>{
+    if (!dbOK) { $('#saveState').textContent = 'Sin guardado automático: usa «Guardar avance»'; return; }
+    try { await DB.set('estado', JSON.parse(JSON.stringify(S))); $('#saveState').textContent = 'Guardado ✓'; }
+    catch(e){ $('#saveState').textContent = 'No se pudo guardar: usa «Guardar avance»'; }
+  }, 500);
+}
+function fusionar(d){
+  const base = DEF();
+  const o = Object.assign(base, d||{});
+  o.areas = Object.assign(DEF().areas, (d&&d.areas)||{});
+  ['dif','pct','npol'].forEach(k=>{ if(!Array.isArray(o[k])||o[k].length!==3) o[k]=['','','']; });
+  ['ini','fin'].forEach(k=>{ if(!Array.isArray(o.areas[k])||o.areas[k].length!==3) o.areas[k]=['','','']; });
+  if (!Array.isArray(o.integrantes) || !o.integrantes.length) o.integrantes=[{nombre:'',rol:''}];
+  if (!o.img || typeof o.img!=='object') o.img={};
+  return o;
+}
+
+/* ================================================================ NAVEGACIÓN */
+const CAPS = $$('section.lesson').map(s=>({id:s.id, t:s.dataset.title}));
+function construirNav(){
+  $('#nav').innerHTML = CAPS.map(c=>`<button data-go="${c.id}"><span>${esc(c.t)}</span><i class="dot" data-dot="${c.id}"></i></button>`).join('');
+}
+function ir(id, scroll=true){
+  if (!CAPS.some(c=>c.id===id)) id='inicio';
+  $$('section.lesson').forEach(s=>s.classList.toggle('active', s.id===id));
+  $$('#nav button').forEach(b=>b.classList.toggle('active', b.dataset.go===id));
+  const i = CAPS.findIndex(c=>c.id===id);
+  $('#prev').disabled = i===0; $('#next').disabled = i===CAPS.length-1;
+  $('#pos').textContent = `${i+1} / ${CAPS.length} · ${CAPS[i].t}`;
+  S.capitulo = id; guardar();
+  if (scroll) window.scrollTo({top:0});
+  if (id==='reporte') checklist();
+}
+document.addEventListener('click', e=>{ const b=e.target.closest('[data-go]'); if(b){ e.preventDefault(); ir(b.dataset.go); } });
+$('#prev').onclick = ()=>{ const i=CAPS.findIndex(c=>c.id===S.capitulo); if(i>0) ir(CAPS[i-1].id); };
+$('#next').onclick = ()=>{ const i=CAPS.findIndex(c=>c.id===S.capitulo); if(i<CAPS.length-1) ir(CAPS[i+1].id); };
+
+/* ================================================================ CÓDIGO GEE */
+const CODIGO = $('#codigoGEE').textContent.replace(/^\n/,'');
+$('#verCodigo').textContent = CODIGO;
+$('#nLineas').textContent = CODIGO.split('\n').length;
+$('#btnCopiar').onclick = async ()=>{
+  try { await navigator.clipboard.writeText(CODIGO); toast('Código copiado. Pégalo en el editor de Earth Engine con Ctrl+V.'); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=CODIGO; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Código copiado.'); }
+};
+
+/* ================================================================ FORMULARIOS */
+function pintarMiembros(){
+  $('#members').innerHTML = S.integrantes.map((m,i)=>`<div class="row">
+    <input type="text" maxlength="70" placeholder="Nombre completo ${i+1}" data-mi="${i}" data-mk="nombre" value="${esc(m.nombre)}" aria-label="Nombre del integrante ${i+1}">
+    <select data-mi="${i}" data-mk="rol" aria-label="Función del integrante ${i+1}"><option value="">Función principal…</option>${ROLES.map(r=>`<option${m.rol===r?' selected':''}>${r}</option>`).join('')}</select>
+    <button class="secondary" type="button" data-del="${i}" title="Quitar" aria-label="Quitar integrante ${i+1}">✕</button></div>`).join('');
+  $('#btnAddMember').disabled = S.integrantes.length>=6;
+}
+['input','change'].forEach(ev=>$('#members').addEventListener(ev, e=>{ const t=e.target; if(t.dataset.mi!==undefined){ S.integrantes[+t.dataset.mi][t.dataset.mk]=t.value; guardar(); marcarAvance(); } }));
+$('#members').addEventListener('click', e=>{ const b=e.target.closest('[data-del]'); if(!b) return; if(S.integrantes.length<=1){ S.integrantes[0]={nombre:'',rol:''}; } else S.integrantes.splice(+b.dataset.del,1); pintarMiembros(); guardar(); marcarAvance(); });
+$('#btnAddMember').onclick = ()=>{ if(S.integrantes.length<6){ S.integrantes.push({nombre:'',rol:''}); pintarMiembros(); guardar(); } };
+
+$('#f_zona').innerHTML = '<option value="">Elige…</option>' + ZONAS.map((z,i)=>`<option value="${i}">${i+1}. ${esc(z.nombre)}</option>`).join('');
+$('#zoneCards').innerHTML = ZONAS.map((z,i)=>`<article><b>${i+1}. ${esc(z.nombre)}</b><br>${esc(z.desc.split('. ')[0].replace(/.$/,''))}.<br><span style="color:var(--muted);font-size:13px">${esc(z.pistas)}</span></article>`).join('');
+
+function contar(k){
+  const el = $(`[data-count="${k}"]`); if(!el) return;
+  const n = (S[k]||'').trim().length, max = +$(`[data-field="${k}"]`).maxLength;
+  el.textContent = `${n} / ${max} caracteres` + (k!=='q5' && n<MIN_TXT ? ` · mínimo ${MIN_TXT}` : '');
+  el.classList.toggle('low', k!=='q5' && n<MIN_TXT);
+}
+$$('[data-field]').forEach(el=>{
+  const ev = el.tagName==='SELECT' ? 'change' : 'input';
+  el.addEventListener(ev, ()=>{
+    S[el.dataset.field] = el.value;
+    if (['zona','ini','fin'].includes(el.dataset.field)) { actualizarAnios(); revisarAreas(); }
+    contar(el.dataset.field); guardar(); marcarAvance();
+  });
+});
+$$('[data-npol]').forEach(el=>el.addEventListener('input', ()=>{ S.npol[+el.dataset.npol]=el.value; guardar(); marcarAvance(); }));
+
+function actualizarAnios(){
+  $$('.yIni').forEach(e=>e.textContent=S.ini); $$('.yFin').forEach(e=>e.textContent=S.fin);
+  Object.keys(IMGS).forEach(k=>{ const box=$(`.upload[data-img="${k}"] .ttl`); if(box) box.innerHTML = tituloImg(k); });
+}
+function tituloImg(k){
+  let t = IMGS[k].t.replace('año inicial', 'año '+S.ini).replace('año final', 'año '+S.fin);
+  const opt = $(`.upload[data-img="${k}"]`)?.dataset.opt;
+  return `${esc(t)}${opt?' <em>(opcional)</em>':''}<br><em>${esc(IMGS[k].h)}</em>`;
+}
+
+/* ================================================================ IMÁGENES */
+function procesarImagen(file){
+  return new Promise((res,rej)=>{
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = ()=>{
+      const MAX = 1600, k = Math.min(1, MAX/Math.max(im.naturalWidth, im.naturalHeight));
+      const w = Math.round(im.naturalWidth*k), h = Math.round(im.naturalHeight*k);
+      const c = document.createElement('canvas'); c.width=w; c.height=h;
+      const g = c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.drawImage(im,0,0,w,h);
+      URL.revokeObjectURL(url);
+      res({src:c.toDataURL('image/jpeg',0.9), w, h, nombre:file.name});
+    };
+    im.onerror = ()=>{ URL.revokeObjectURL(url); rej(new Error('No se pudo leer la imagen')); };
+    im.src = url;
+  });
+}
+function parseCSV(txt){
+  const filas=[]; let f=[], c='', q=false;
+  for (let i=0;i<txt.length;i++){
+    const ch=txt[i];
+    if (q){ if(ch==='"'){ if(txt[i+1]==='"'){c+='"';i++;} else q=false; } else c+=ch; }
+    else if (ch==='"') q=true;
+    else if (ch===','||ch===';'||ch==='\t'){ f.push(c); c=''; }
+    else if (ch==='\n'||ch==='\r'){ if(ch==='\r'&&txt[i+1]==='\n') i++; f.push(c); c=''; if(f.some(x=>x.trim()!=='')) filas.push(f); f=[]; }
+    else c+=ch;
+  }
+  f.push(c); if (f.some(x=>x.trim()!=='')) filas.push(f);
+  return filas.slice(0,16).map(r=>r.slice(0,10).map(x=>{ const t=x.trim(); const n=Number(t); return (t!=='' && isFinite(n) && /\d/.test(t)) ? (Math.abs(n)<10 && !Number.isInteger(n) ? n.toFixed(4) : String(+n.toFixed(4))) : t; }));
+}
+function pintarUpload(box){
+  const k = box.dataset.img, d = S.img[k], csv = (k==='tablaFirmas' && S.csv);
+  box.classList.toggle('has', !!(d||csv));
+  let cuerpo;
+  if (d) cuerpo = `<img src="${d.src}" alt="${esc(IMGS[k].t)}">`;
+  else if (csv) cuerpo = `<div style="overflow:auto;max-height:170px;width:100%"><table>${csv.map((r,i)=>`<tr>${r.map(x=>i?`<td>${esc(x)}</td>`:`<th>${esc(x)}</th>`).join('')}</tr>`).join('')}</table></div>`;
+  else cuerpo = `<span>📎 Haz clic o arrastra aquí<br>${box.dataset.csv?'PNG, JPG o CSV':'PNG o JPG'}</span>`;
+  box.innerHTML = `<div class="ttl">${tituloImg(k)}</div>
+    <div class="drop" tabindex="0" role="button" aria-label="Subir ${esc(IMGS[k].t)}">${cuerpo}</div>
+    <div class="meta"><span>${d?esc(d.nombre):(csv?'Tabla CSV':'Sin archivo')}</span>${(d||csv)?'<button class="secondary" type="button" data-quitar>Quitar</button>':''}</div>
+    <input type="file" hidden accept="${box.dataset.csv?'image/png,image/jpeg,.csv,text/csv':'image/png,image/jpeg'}">`;
+}
+async function recibirArchivo(box, file){
+  const k = box.dataset.img;
+  if (!file) return;
+  try {
+    if (box.dataset.csv && /\.csv$/i.test(file.name)) {
+      const filas = parseCSV(await file.text());
+      if (filas.length<2) throw new Error('El CSV no tiene datos');
+      S.csv = filas; delete S.img[k];
+    } else if (/^image\/(png|jpe?g)$/.test(file.type) || /\.(png|jpe?g)$/i.test(file.name)) {
+      S.img[k] = await procesarImagen(file);
+      if (k==='tablaFirmas') S.csv = null;
+    } else throw new Error('Formato no admitido: usa PNG o JPG' + (box.dataset.csv?' (o CSV)':''));
+    pintarUpload(box); guardar(); marcarAvance(); toast('Archivo agregado ✓');
+  } catch(e){ toast('⚠ '+e.message, 5000); }
+}
+$$('.upload').forEach(box=>{
+  pintarUpload(box);
+  box.addEventListener('click', e=>{
+    if (e.target.closest('[data-quitar]')) { delete S.img[box.dataset.img]; if(box.dataset.img==='tablaFirmas') S.csv=null; pintarUpload(box); guardar(); marcarAvance(); return; }
+    if (e.target.closest('.drop')) box.querySelector('input[type=file]').click();
+  });
+  box.addEventListener('keydown', e=>{ if((e.key==='Enter'||e.key===' ') && e.target.classList.contains('drop')){ e.preventDefault(); box.querySelector('input[type=file]').click(); } });
+  box.addEventListener('change', e=>{ if(e.target.type==='file'){ recibirArchivo(box, e.target.files[0]); e.target.value=''; } });
+  box.addEventListener('dragover', e=>{ e.preventDefault(); box.classList.add('drag'); });
+  box.addEventListener('dragleave', ()=>box.classList.remove('drag'));
+  box.addEventListener('drop', e=>{ e.preventDefault(); box.classList.remove('drag'); recibirArchivo(box, e.dataTransfer.files[0]); });
+});
+
+/* ================================================================ SUPERFICIES Y CÁLCULOS */
+function pintarTablas(){
+  $('#areasBody').innerHTML = CLASES.map((c,i)=>`<tr><td><span class="swatch" style="background:${c.color}"></span>${c.nombre}</td>
+    <td class="num"><input type="text" inputmode="decimal" class="numin" data-area="ini" data-i="${i}" value="${esc(S.areas.ini[i])}" aria-label="Superficie inicial de ${c.nombre}"></td>
+    <td class="num"><input type="text" inputmode="decimal" class="numin" data-area="fin" data-i="${i}" value="${esc(S.areas.fin[i])}" aria-label="Superficie final de ${c.nombre}"></td></tr>`).join('');
+  $('#calcBody').innerHTML = CLASES.map((c,i)=>`<tr><td><span class="swatch" style="background:${c.color}"></span>${c.corto}</td>
+    <td class="num" data-ai="${i}">—</td><td class="num" data-af="${i}">—</td>
+    <td><input type="text" inputmode="decimal" class="numin" data-calc="dif" data-i="${i}" value="${esc(S.dif[i])}" aria-label="Diferencia de ${c.nombre}"></td>
+    <td><input type="text" inputmode="decimal" class="numin" data-calc="pct" data-i="${i}" value="${esc(S.pct[i])}" aria-label="Tasa de cambio de ${c.nombre}"></td>
+    <td class="st" data-st="${i}"></td></tr>`).join('');
+}
+document.addEventListener('input', e=>{
+  const t = e.target;
+  if (t.dataset.area){ S.areas[t.dataset.area][+t.dataset.i] = t.value; invalidar(); revisarAreas(); guardar(); marcarAvance(); }
+  if (t.dataset.calc){ S[t.dataset.calc][+t.dataset.i] = t.value; invalidar(); guardar(); marcarAvance(); }
+});
+function invalidar(){
+  if (S.verificado) { S.verificado = false; $('#verifResumen').textContent='Cambiaste un valor: vuelve a verificar.'; $('#verifResumen').className='st bad'; }
+  $('#graficasCambio').hidden = true;
+  $$('[data-st]').forEach(e=>{ e.textContent=''; });
+}
+function areasNum(){ return {ini:S.areas.ini.map(num), fin:S.areas.fin.map(num)}; }
+function revisarAreas(){
+  const A = areasNum();
+  const ok = k => A[k].every(x=>isFinite(x) && x>=0);
+  const tI = A.ini.reduce((a,b)=>a+(isFinite(b)?b:0),0), tF = A.fin.reduce((a,b)=>a+(isFinite(b)?b:0),0);
+  $('#totIni').textContent = ok('ini') ? fmt(tI) : '—';
+  $('#totFin').textContent = ok('fin') ? fmt(tF) : '—';
+  CLASES.forEach((c,i)=>{
+    $(`[data-ai="${i}"]`).textContent = isFinite(A.ini[i]) ? fmt(A.ini[i]) : '—';
+    $(`[data-af="${i}"]`).textContent = isFinite(A.fin[i]) ? fmt(A.fin[i]) : '—';
+  });
+  const av = [];
+  $$('[data-area]').forEach(inp=>{ const v=inp.value.trim(); inp.style.borderColor = (v && !isFinite(num(v))) ? 'var(--red)' : ''; });
+  if (ok('ini') && ok('fin')) {
+    if (Math.abs(tI-tF)/Math.max(tI,tF) > 0.01) av.push(`Los totales de ambos años difieren más de 1 % (${fmt(tI)} vs ${fmt(tF)} ha). Deberían ser casi iguales porque es la misma zona: revisa que copiaste bien.`);
+    if (S.zona!=='') {
+      const esp = areaCaja(ZONAS[+S.zona].caja);
+      if (Math.abs(tI-esp)/esp > 0.03) av.push(`El total (${fmt(tI)} ha) no se parece al área de la zona elegida (≈ ${fmt(esp,0)} ha). ¿Elegiste la misma zona aquí y en Earth Engine? ¿Copiaste bien los números?`);
+    }
+  }
+  $('#areasAviso').innerHTML = av.map(t=>`<div class="callout warn">${esc(t)}</div>`).join('');
+  const faltan = !(ok('ini') && ok('fin'));
+  $('#calcFalta').textContent = faltan ? 'Primero copia las seis superficies en el capítulo 7.' : '';
+  return !faltan;
+}
+$('#btnVerificar').onclick = verificar;
+function correctos(){
+  const A = areasNum();
+  return CLASES.map((c,i)=>{
+    const d = A.fin[i]-A.ini[i];
+    return {dif:d, pct: A.ini[i]>0 ? d/A.ini[i]*100 : NaN};
+  });
+}
+function verificar(){
+  if (!revisarAreas()) { toast('Faltan superficies en el capítulo 7.'); return; }
+  const C = correctos(), A = areasNum();
+  let todos = true; const pistas = [];
+  CLASES.forEach((c,i)=>{
+    const d = num(S.dif[i]), p = num(S.pct[i]);
+    const okD = isFinite(d) && Math.abs(d - C[i].dif) <= 0.06;
+    const okP = !isFinite(C[i].pct) ? true : (isFinite(p) && Math.abs(p - C[i].pct) <= 0.06);
+    const st = $(`[data-st="${i}"]`);
+    if (okD && okP) { st.textContent='✓ Correcto'; st.className='st ok'; }
+    else {
+      todos = false;
+      const q = [];
+      if (!isFinite(d)) q.push('falta la diferencia'); else if (!okD) q.push(Math.abs(d + C[i].dif) <= 0.06 && Math.abs(C[i].dif)>0.06 ? 'revisa el signo de la diferencia' : 'revisa la diferencia');
+      if (!isFinite(p)) q.push('falta la tasa'); else if (!okP) q.push('revisa la tasa');
+      st.textContent = '✗ ' + q.join(' y '); st.className='st bad';
+      pistas.push(`<li><b>${c.corto}:</b> Diferencia = ${fmt(A.fin[i])} − ${fmt(A.ini[i])} = ? &nbsp;·&nbsp; Tasa = (Diferencia ÷ ${fmt(A.ini[i])}) × 100 = ?</li>`);
+    }
+  });
+  S.verificado = todos;
+  if (todos) {
+    $('#verifResumen').textContent = '¡Todos los cálculos son correctos!'; $('#verifResumen').className='st ok';
+    $('#pistas').innerHTML=''; S.intentos = 0; graficasCambio();
+  } else {
+    S.intentos++;
+    $('#verifResumen').textContent = 'Hay cálculos por revisar (intento ' + S.intentos + ').'; $('#verifResumen').className='st bad';
+    $('#pistas').innerHTML = S.intentos>=2 ? `<div class="callout warn"><b>Pista con tus números</b> (sustituye y resuelve):<ul style="margin:6px 0 0">${pistas.join('')}</ul>Recuerda: final − inicial; divide entre la superficie <b>inicial</b>; dos decimales.</div>` : '';
+    $('#graficasCambio').hidden = true;
+  }
+  guardar(); marcarAvance();
+}
+
+/* ================================================================ GRÁFICAS (mismas primitivas para la página y el PDF) */
+const INK = {
+  oscuro:{text:'#edf4ff', muted:'#b2c3d9', grid:'#2b415d', axis:'#6d84a3', bg:'#122135'},
+  claro:{text:'#1b2430', muted:'#55606e', grid:'#dfe4ea', axis:'#8a95a3', bg:'#ffffff'}
+};
+function mezclar(hex, f){ const n=parseInt(hex.slice(1),16); const ch=[n>>16,(n>>8)&255,n&255].map(v=>Math.round(v*f+255*(1-f))); return '#'+ch.map(v=>v.toString(16).padStart(2,'0')).join(''); }
+function maxBonito(v){ if(!(v>0)) return 1; const e=Math.pow(10,Math.floor(Math.log10(v))); const m=v/e; return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*e; }
+function chartAreas(d, ink, W=520, H=320, fs=1){
+  const P=[], m={l:64*fs,r:12,t:46*fs,b:40*fs}, pw=W-m.l-m.r, ph=H-m.t-m.b;
+  const T=(o)=>{ o.s*=fs; P.push(o); };
+  const max = maxBonito(Math.max(...d.ini, ...d.fin)*1.12);
+  T({k:'text', x:8, y:18*fs, t:'Superficie por clase (ha)', s:14, b:true, c:ink.text});
+  for (let i=0;i<=4;i++){ const y=m.t+ph-ph*i/4; P.push({k:'line',x1:m.l,y1:y,x2:W-m.r,y2:y,c:i?ink.grid:ink.axis,w:1}); T({k:'text',x:m.l-6,y:y+4*fs,t:fmt(max*i/4,0),s:10,a:'end',c:ink.muted}); }
+  const gw=pw/3, bw=Math.min(52,gw*0.34);
+  d.colores.forEach((col,i)=>{
+    const cx=m.l+gw*(i+0.5);
+    [[d.ini[i], mezclar(col,0.45), cx-bw-1],[d.fin[i], col, cx+1]].forEach(([v,fill,x])=>{
+      const h=Math.max(0, ph*v/max); P.push({k:'rect',x,y:m.t+ph-h,w:bw,h,c:fill,st:col});
+      T({k:'text',x:x+bw/2,y:m.t+ph-h-5,t:fmt(v,0),s:9.5,a:'middle',c:ink.text});
+    });
+    T({k:'text',x:cx,y:H-m.b+18*fs,t:d.etiquetas[i],s:11.5,a:'middle',c:ink.text});
+  });
+  const ly=33*fs, sw=11*fs; P.push({k:'rect',x:8,y:ly-sw+1,w:sw,h:sw,c:mezclar('#888888',0.45),st:'#888888'}); T({k:'text',x:8+sw+5,y:ly,t:'Año '+d.yIni+' (tono claro)',s:10.5,c:ink.muted});
+  const x2 = 8 + sw + 5 + 150*fs; P.push({k:'rect',x:x2,y:ly-sw+1,w:sw,h:sw,c:'#888888',st:'#888888'}); T({k:'text',x:x2+sw+5,y:ly,t:'Año '+d.yFin+' (tono intenso)',s:10.5,c:ink.muted});
+  return {W,H,P};
+}
+function chartCambio(d, ink, W=520, H=320, fs=1){
+  const P=[], m={l:64*fs,r:12,t:46*fs,b:40*fs}, pw=W-m.l-m.r, ph=H-m.t-m.b;
+  const T=(o)=>{ o.s*=fs; P.push(o); };
+  const mx = maxBonito(Math.max(1, ...d.pct.map(Math.abs))*1.15);
+  const y0 = m.t+ph/2, k = (ph/2)/mx;
+  T({k:'text', x:8, y:18*fs, t:'Tasa de cambio '+d.yIni+'–'+d.yFin+' (%)', s:14, b:true, c:ink.text});
+  T({k:'text', x:8, y:33*fs, t:'Hacia arriba = aumento · hacia abajo = disminución', s:10.5, c:ink.muted});
+  for (let i=-2;i<=2;i++){ const y=y0-i*(ph/4); P.push({k:'line',x1:m.l,y1:y,x2:W-m.r,y2:y,c:i?ink.grid:ink.axis,w:i?1:1.5}); T({k:'text',x:m.l-6,y:y+4*fs,t:fmtS(mx*i/2,mx<10?1:0),s:10,a:'end',c:ink.muted}); }
+  const gw=pw/3, bw=Math.min(64,gw*0.42);
+  d.colores.forEach((col,i)=>{
+    const cx=m.l+gw*(i+0.5), v=d.pct[i], h=Math.abs(v)*k;
+    P.push({k:'rect',x:cx-bw/2,y:v>=0?y0-h:y0,w:bw,h,c:col,st:col});
+    T({k:'text',x:cx,y:v>=0?y0-h-6:y0+h+14*fs,t:fmtS(v)+' %',s:10.5,a:'middle',c:ink.text,b:true});
+    T({k:'text',x:cx,y:H-m.b+18*fs,t:d.etiquetas[i],s:11.5,a:'middle',c:ink.text});
+  });
+  return {W,H,P};
+}
+function esquemaFirmas(ink, W=520, H=300){
+  const P=[], m={l:52,r:12,t:20,b:48}, pw=W-m.l-m.r, ph=H-m.t-m.b, ond=[490,560,665,842,1610,2190], bandas=['B2','B3','B4','B8','B11','B12'];
+  const X=w=>m.l+(w-400)/(2300-400)*pw, Y=v=>m.t+ph-v/0.5*ph;
+  for (let i=0;i<=5;i++){ const v=i*0.1; P.push({k:'line',x1:m.l,y1:Y(v),x2:W-m.r,y2:Y(v),c:i?ink.grid:ink.axis,w:1}); P.push({k:'text',x:m.l-6,y:Y(v)+4,t:v.toFixed(1),s:10,a:'end',c:ink.muted}); }
+  ond.forEach((w,i)=>P.push({k:'text',x:X(w),y:H-m.b+16,t:bandas[i],s:10,a:'middle',c:ink.muted}));
+  P.push({k:'text',x:m.l+pw/2,y:H-8,t:'Longitud de onda (nm) · reflectancia 0–0.5',s:10.5,a:'middle',c:ink.muted});
+  const tip = [[0.04,0.07,0.04,0.34,0.18,0.09],[0.09,0.12,0.14,0.21,0.28,0.23],[0.06,0.07,0.05,0.025,0.012,0.008]];
+  tip.forEach((vals,ci)=>{ const pts=vals.map((v,i)=>[X(ond[i]),Y(v)]); P.push({k:'poly',pts,c:CLASES[ci].color,w:2.5}); pts.forEach(p=>P.push({k:'dot',x:p[0],y:p[1],r:3.5,c:CLASES[ci].color})); });
+  P.push({k:'text',x:X(842)+6,y:Y(0.34)-4,t:'Vegetación',s:11,c:ink.text,b:true});
+  P.push({k:'text',x:X(1610)+8,y:Y(0.28)-6,t:'Suelo/construido',s:11,c:ink.text,b:true});
+  P.push({k:'text',x:X(1610)-10,y:Y(0.012)-8,t:'Agua',s:11,c:ink.text,b:true});
+  return {W,H,P};
+}
+function aSVG(g, titulo){
+  const e=(s)=>esc(s);
+  const body = g.P.map(p=>{
+    if (p.k==='line') return `<line x1="${p.x1}" y1="${p.y1}" x2="${p.x2}" y2="${p.y2}" stroke="${p.c}" stroke-width="${p.w||1}"/>`;
+    if (p.k==='rect') return `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${Math.max(p.h,0.5)}" rx="2" fill="${p.c}" stroke="${p.st||'none'}" stroke-width="1"/>`;
+    if (p.k==='text') return `<text x="${p.x}" y="${p.y}" font-size="${p.s}" fill="${p.c}" text-anchor="${p.a||'start'}"${p.b?' font-weight="700"':''}>${e(p.t)}</text>`;
+    if (p.k==='poly') return `<polyline points="${p.pts.map(q=>q.join(',')).join(' ')}" fill="none" stroke="${p.c}" stroke-width="${p.w}" stroke-linejoin="round"/>`;
+    if (p.k==='dot') return `<circle cx="${p.x}" cy="${p.y}" r="${p.r}" fill="${p.c}"/>`;
+    return '';
+  }).join('');
+  return `<svg viewBox="0 0 ${g.W} ${g.H}" role="img" aria-label="${e(titulo)}" font-family="Segoe UI, Arial, sans-serif">${body}</svg>`;
+}
+function hex2rgb(h){ const n=parseInt(h.slice(1),16); return [n>>16,(n>>8)&255,n&255]; }
+function aPDF(doc, g, ox, oy, ancho){
+  const k = ancho/g.W, pt = 1/0.352778;
+  g.P.forEach(p=>{
+    if (p.k==='line'){ doc.setDrawColor(...hex2rgb(p.c)); doc.setLineWidth((p.w||1)*k*0.8); doc.line(ox+p.x1*k, oy+p.y1*k, ox+p.x2*k, oy+p.y2*k); }
+    else if (p.k==='rect'){ if(p.h<=0.01) return; doc.setFillColor(...hex2rgb(p.c)); doc.setDrawColor(...hex2rgb(p.st||p.c)); doc.setLineWidth(0.6*k); doc.rect(ox+p.x*k, oy+p.y*k, p.w*k, p.h*k, 'FD'); }
+    else if (p.k==='text'){ doc.setFont('helvetica', p.b?'bold':'normal'); doc.setFontSize(p.s*k*pt); doc.setTextColor(...hex2rgb(p.c)); doc.text(pdfSafe(p.t), ox+p.x*k, oy+p.y*k, {align: p.a==='middle'?'center':(p.a==='end'?'right':'left')}); }
+    else if (p.k==='poly'){ doc.setDrawColor(...hex2rgb(p.c)); doc.setLineWidth(p.w*k*0.8); for(let i=1;i<p.pts.length;i++) doc.line(ox+p.pts[i-1][0]*k, oy+p.pts[i-1][1]*k, ox+p.pts[i][0]*k, oy+p.pts[i][1]*k); }
+    else if (p.k==='dot'){ doc.setFillColor(...hex2rgb(p.c)); doc.circle(ox+p.x*k, oy+p.y*k, p.r*k, 'F'); }
+  });
+}
+function datosCambio(){
+  const A=areasNum(), C=correctos();
+  return {ini:A.ini, fin:A.fin, pct:C.map(x=>isFinite(x.pct)?x.pct:0), dif:C.map(x=>x.dif), etiquetas:CLASES.map(c=>c.corto), colores:CLASES.map(c=>c.color), yIni:S.ini, yFin:S.fin};
+}
+function graficasCambio(){
+  const d = datosCambio();
+  $('#svgAreas').innerHTML = aSVG(chartAreas(d, INK.oscuro), 'Superficie por clase');
+  $('#svgCambio').innerHTML = aSVG(chartCambio(d, INK.oscuro), 'Tasa de cambio por clase');
+  $('#graficasCambio').hidden = false;
+}
+$('#esquemaFirmas').innerHTML = aSVG(esquemaFirmas(INK.oscuro), 'Esquema de firmas espectrales típicas');
+
+/* ================================================================ AVANCE Y LISTA DE VERIFICACIÓN */
+const txtOK = k => (S[k]||'').trim().length >= MIN_TXT;
+function requisitos(){
+  const A = areasNum(); const areasOK = [...A.ini, ...A.fin].every(x=>isFinite(x) && x>=0);
+  const img = k => !!S.img[k];
+  return [
+    {cap:'equipo', t:'Nombre del equipo', ok: S.equipo.trim().length>0},
+    {cap:'equipo', t:'Al menos un integrante con nombre', ok: S.integrantes.some(m=>m.nombre.trim().length>2)},
+    {cap:'zona', t:'Zona y años elegidos', ok: S.zona!==''},
+    {cap:'zona', t:'Imágenes color verdadero (inicio y fin)', ok: img('rgbIni') && img('rgbFin')},
+    {cap:'zona', t:`Pregunta 2 (mín. ${MIN_TXT} caracteres)`, ok: txtOK('q2')},
+    {cap:'poligonos', t:'Número de polígonos por clase', ok: S.npol.every(x=>num(x)>=1)},
+    {cap:'poligonos', t:'Imagen de los polígonos de entrenamiento', ok: img('poligonos')},
+    {cap:'firmas', t:'Gráfica de firmas espectrales', ok: img('firmas')},
+    {cap:'firmas', t:'Tabla de datos de las firmas', ok: img('tablaFirmas') || !!S.csv},
+    {cap:'firmas', t:`Pregunta 3 (mín. ${MIN_TXT} caracteres)`, ok: txtOK('q3')},
+    {cap:'cobertura', t:'Mapas de cobertura (inicio y fin)', ok: img('cobIni') && img('cobFin')},
+    {cap:'cobertura', t:'Superficies por clase (6 valores)', ok: areasOK},
+    {cap:'tasa', t:'Cálculos de diferencia y tasa verificados', ok: S.verificado},
+    {cap:'conclusion', t:`Pregunta 1 (mín. ${MIN_TXT} caracteres)`, ok: txtOK('q1')},
+    {cap:'conclusion', t:`Pregunta 4 (mín. ${MIN_TXT} caracteres)`, ok: txtOK('q4')},
+    {cap:'evaluacion', t:'Evaluación de exactitud (opcional)', ok: img('evalMatriz') || img('evalGrafica'), opt:true}
+  ];
+}
+function marcarAvance(){
+  const R = requisitos();
+  CAPS.forEach(c=>{
+    const rs = R.filter(r=>r.cap===c.id && !r.opt);
+    const dot = $(`[data-dot="${c.id}"]`);
+    if (dot) dot.classList.toggle('done', rs.length>0 && rs.every(r=>r.ok));
+  });
+  $('[data-dot="reporte"]')?.classList.toggle('done', R.every(r=>r.ok || r.opt));
+  if (S.capitulo==='reporte') checklist();
+}
+function checklist(){
+  const R = requisitos();
+  $('#checklist').innerHTML = R.map(r=>`<li class="${r.ok?'done':(r.opt?'opt':'')}"><a href="#" data-go="${r.cap}">${esc(r.t)}</a></li>`).join('');
+  const falt = R.filter(r=>!r.ok && !r.opt).length;
+  $('#pdfMsg').textContent = falt ? `Faltan ${falt} punto(s) obligatorio(s). Haz clic en cada uno para ir al capítulo.` : 'Todo listo para generar el reporte.';
+}
+
+/* ================================================================ PDF */
+function pdfSafe(s){
+  return String(s??'').replace(/[‘’´]/g,"'").replace(/[“”]/g,'"').replace(/[–—−]/g,'-')
+    .replace(/…/g,'...').replace(/[   ]/g,' ').replace(/≈/g,'aprox. ').replace(/→/g,'->')
+    .replace(/\r/g,'').replace(/[^\x09\x0A\x20-\x7E¡-ÿ]/g,'');
+}
+function generarPDF(){
+  const R = requisitos(), falt = R.filter(r=>!r.ok && !r.opt);
+  if (falt.length) { checklist(); toast('Faltan: ' + falt.map(r=>r.t).join('; '), 7000); return; }
+  if (!window.jspdf) { toast('No se pudo cargar el generador de PDF. Revisa tu conexión a internet y recarga la página.', 6000); return; }
+  $('#btnPDF').disabled = true; $('#pdfMsg').textContent = 'Generando…';
+  setTimeout(()=>{ try { construirPDF(); $('#pdfMsg').textContent='Reporte generado ✓. Revisa el archivo descargado.'; } catch(e){ console.error(e); $('#pdfMsg').textContent='Error al generar: '+e.message; } finally { $('#btnPDF').disabled=false; } }, 30);
+}
+$('#btnPDF').onclick = generarPDF;
+
+function construirPDF(opciones={}){
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4', compress:true});
+  const PW=210, PH=297, M=18, CW=PW-2*M, TOP=24, BOT=PH-18;
+  const z = ZONAS[+S.zona], A = areasNum(), C = correctos(), anios = (+S.fin) - (+S.ini);
+  const tI = A.ini.reduce((a,b)=>a+b,0), tF = A.fin.reduce((a,b)=>a+b,0);
+  const OSC=[16,46,61], MENTA=[44,160,128], TXT=[27,36,48], GRIS=[85,96,110];
+  let y = TOP, fig = 0, tab = 0, sec = 0;
+  const nuevaPagina = ()=>{ doc.addPage(); y = TOP; };
+  const espacio = h=>{ if (y + h > BOT) nuevaPagina(); };
+  const fuente = (est='normal', tam=10.5, col=TXT)=>{ doc.setFont('helvetica', est); doc.setFontSize(tam); doc.setTextColor(...col); };
+  const seccion = (t, reserva=22)=>{ espacio(reserva); sec++; y += 3; fuente('bold',14,OSC); doc.text(pdfSafe(`${sec}. ${t}`), M, y); doc.setDrawColor(...MENTA); doc.setLineWidth(0.8); doc.line(M, y+2.2, M+18, y+2.2); y += 9; };
+  const sub = t=>{ espacio(12); fuente('bold',11.5,OSC); doc.text(pdfSafe(t), M, y); y += 6; };
+  const parrafo = (t, o={})=>{
+    const tam=o.tam||10.5, lh=tam*0.47, ancho=o.ancho||CW, x=o.x||M;
+    fuente(o.est||'normal', tam, o.col||TXT);
+    pdfSafe(t).split('\n').forEach(par=>{
+      const lineas = doc.splitTextToSize(par, ancho - (o.barra?5:0));
+      lineas.forEach(l=>{ espacio(lh+0.5); if(o.barra){ doc.setDrawColor(...MENTA); doc.setLineWidth(0.9); doc.line(x, y-lh+1.2, x, y+1.4); } doc.text(l, x+(o.barra?5:0), y); y += lh; });
+    });
+    y += o.despues ?? 2.5;
+  };
+  const voz = (titulo, t)=>{ espacio(16); fuente('bold',9,MENTA); doc.text(pdfSafe(titulo.toUpperCase()), M, y); y+=4.6; parrafo(t, {est:'italic', barra:true, tam:10}); };
+  const pie = t=>{ fig++; fuente('normal',9,GRIS); const ls=doc.splitTextToSize(pdfSafe(`Figura ${fig}. ${t}`), CW); ls.forEach(l=>{ doc.text(l, M, y); y+=4; }); y+=3; };
+  const encTabla = t=>{ tab++; fuente('bold',9.5,OSC); doc.text(pdfSafe(`Tabla ${tab}. ${t}`), M, y); y+=4.5; };
+  const imagen = (d, maxW, maxH, x)=>{ const k=Math.min(maxW/d.w, maxH/d.h); const w=d.w*k, h=d.h*k; doc.addImage(d.src, 'JPEG', x ?? (M+(CW-w)/2), y, w, h, undefined, 'FAST'); doc.setDrawColor(210,215,222); doc.setLineWidth(0.2); doc.rect(x ?? (M+(CW-w)/2), y, w, h); return h; };
+  const disponible = extra=>BOT - y - extra;
+  const figura = (d, maxH, texto, minH=55)=>{ const lib=disponible(14); if (lib>=minH && lib<d.h*Math.min(CW/d.w,maxH/d.h)) maxH=lib; const k=Math.min(CW/d.w, maxH/d.h); espacio(d.h*k + 12); y += imagen(d, CW, maxH) + 4; pie(texto); };
+  const par = (a, b, maxH, rotA, rotB, texto, leyenda, minH=58)=>{
+    const lib=disponible(22+(leyenda?7:0)); if (lib>=minH && lib<maxH) maxH=lib;
+    const w=(CW-6)/2, hA=a.h*Math.min(w/a.w,maxH/a.h), hB=b.h*Math.min(w/b.w,maxH/b.h), h=Math.max(hA,hB);
+    espacio(h + 20 + (leyenda?7:0));
+    fuente('bold',9.5,TXT); doc.text(pdfSafe(rotA), M, y); doc.text(pdfSafe(rotB), M+w+6, y); y += 2.5;
+    imagen(a, w, maxH, M + (w - a.w*Math.min(w/a.w,maxH/a.h))/2); imagen(b, w, maxH, M+w+6 + (w - b.w*Math.min(w/b.w,maxH/b.h))/2);
+    y += h + 4;
+    if (leyenda) { let x=M; CLASES.forEach(c=>{ doc.setFillColor(...hex2rgb(c.color)); doc.rect(x, y-3, 4, 4, 'F'); fuente('normal',9,TXT); doc.text(pdfSafe(c.nombre), x+6, y); x += 8 + doc.getTextWidth(pdfSafe(c.nombre)) + 8; }); y += 6; }
+    pie(texto);
+  };
+  const tabla = (cab, filas, anchos, o={})=>{
+    const tam=o.tam||9.5, lh=6.4, tot=anchos.reduce((a,b)=>a+b,0), x0=M+(CW-tot)/2;
+    espacio(lh*(filas.length+1)+4+(o.titulo?5:0));
+    if (o.titulo) encTabla(o.titulo);
+    doc.setFillColor(...OSC); doc.rect(x0, y, tot, lh, 'F');
+    fuente('bold', tam, [255,255,255]);
+    let x=x0; cab.forEach((c,i)=>{ const al=i===0?'left':'right'; doc.text(pdfSafe(c), al==='left'?x+2:x+anchos[i]-2, y+4.4, {align:al}); x+=anchos[i]; });
+    y += lh;
+    filas.forEach((f,r)=>{
+      espacio(lh);
+      const negrita = o.totalUltima && r===filas.length-1;
+      if (r%2===0 || negrita){ doc.setFillColor(...(negrita?[226,240,235]:[244,247,249])); doc.rect(x0, y, tot, lh, 'F'); }
+      x=x0; f.forEach((c,i)=>{
+        if (i===0 && o.colores && o.colores[r]) { doc.setFillColor(...hex2rgb(o.colores[r])); doc.rect(x+2, y+1.7, 3, 3, 'F'); }
+        fuente(negrita?'bold':'normal', tam, TXT);
+        const al=i===0?'left':'right', off=(i===0 && o.colores && o.colores[r])?7:2;
+        doc.text(pdfSafe(String(c)), al==='left'?x+off:x+anchos[i]-2, y+4.4, {align:al}); x+=anchos[i];
+      });
+      y += lh;
+    });
+    doc.setDrawColor(...OSC); doc.setLineWidth(0.3); doc.line(x0, y, x0+tot, y);
+    y += 5;
+  };
+  const nombres = S.integrantes.filter(m=>m.nombre.trim());
+
+  /* ---------- Portada */
+  doc.setFillColor(...OSC); doc.rect(0, 0, PW, 92, 'F');
+  doc.setFillColor(...MENTA); doc.rect(0, 92, PW, 2.2, 'F');
+  fuente('bold', 9.5, [168,232,210]); doc.text('ACTIVIDAD 3 · INGENIERÍA EN AGRONOMÍA', M, 22);
+  fuente('bold', 25, [255,255,255]); doc.text(doc.splitTextToSize('Cobertura del suelo y tasas de cambio', CW), M, 40);
+  fuente('normal', 14, [225,236,245]); doc.text(doc.splitTextToSize(pdfSafe(`${z.nombre}, Veracruz · ${S.ini}-${S.fin}`), CW), M, 62);
+  fuente('normal', 10, [190,210,225]); doc.text(pdfSafe('Estimación con imágenes Sentinel-2, Google Earth Engine y Random Forest'), M, 76);
+  y = 108;
+  const colIzq = 88;
+  fuente('bold', 9, MENTA); doc.text('EQUIPO', M, y); y += 7;
+  fuente('bold', 17, OSC); const lEq = doc.splitTextToSize(pdfSafe(S.equipo), colIzq); doc.text(lEq, M, y); y += lEq.length*7 + 3;
+  fuente('bold', 9, MENTA); doc.text('INTEGRANTES', M, y); y += 6;
+  nombres.forEach(m=>{ fuente('normal', 10.5, TXT); const l=doc.splitTextToSize(pdfSafe(m.nombre), colIzq); doc.text(l, M, y); y += l.length*5; if(m.rol){ fuente('italic', 9, GRIS); doc.text(pdfSafe(m.rol), M, y); y += 5.5; } else y += 1.5; });
+  y += 3;
+  [['GRUPO', S.grupo], ['DOCENTE', S.docente], ['FECHA', S.fecha ? new Date(S.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '']].forEach(([k,v])=>{
+    if (!v || !String(v).trim()) return; fuente('bold', 9, MENTA); doc.text(k, M, y); y += 5; fuente('normal', 10.5, TXT); doc.text(doc.splitTextToSize(pdfSafe(v), colIzq), M, y); y += 7;
+  });
+  const portada = S.img.cobFin;
+  let yImg = 108;
+  if (portada) { const w=CW-colIzq-6, k=Math.min(w/portada.w, 92/portada.h); const x=M+colIzq+6+(w-portada.w*k)/2; doc.addImage(portada.src,'JPEG',x,yImg,portada.w*k,portada.h*k,undefined,'FAST'); doc.setDrawColor(200,205,212); doc.rect(x,yImg,portada.w*k,portada.h*k); fuente('normal',8.5,GRIS); doc.text(pdfSafe(`Cobertura estimada ${S.fin}`), M+colIzq+6, yImg+portada.h*k+5); yImg += portada.h*k + 8; }
+  y = Math.max(y, yImg) + 4;
+  const boxH = 50; if (y + boxH > BOT) y = BOT - boxH;
+  doc.setFillColor(236,246,242); doc.roundedRect(M, y, CW, boxH, 3, 3, 'F');
+  fuente('bold', 10, OSC); doc.text('RESUMEN DE RESULTADOS', M+6, y+8);
+  fuente('normal', 10, TXT);
+  doc.text(pdfSafe(`Área de trabajo: ${fmt(tI)} ha. Cambio de ${S.ini} a ${S.fin} (${anios} años):`), M+6, y+15);
+  CLASES.forEach((c,i)=>{ const yy=y+23+i*7.5; doc.setFillColor(...hex2rgb(c.color)); doc.rect(M+6, yy-3.3, 4, 4, 'F'); fuente('bold',10,TXT); doc.text(pdfSafe(c.nombre+':'), M+13, yy); fuente('normal',10,TXT); doc.text(pdfSafe(`${fmt(A.ini[i])} ha a ${fmt(A.fin[i])} ha  (${fmtS(C[i].dif)} ha; ${isFinite(C[i].pct)?fmtS(C[i].pct)+' %':'n. d.'})`), M+68, yy); });
+
+  /* ---------- 1. Introducción */
+  nuevaPagina();
+  seccion('Introducción');
+  parrafo('La cobertura del suelo describe lo que cubre físicamente la superficie terrestre: vegetación, suelo desnudo o construcciones, y agua. Sus cambios a lo largo del tiempo reflejan procesos como la expansión urbana, la apertura o el abandono de tierras agrícolas, la pérdida de humedales o la variación de los cuerpos de agua. Medir cuántas hectáreas gana o pierde cada clase, y qué porcentaje representa ese cambio, permite comparar zonas y periodos con un mismo criterio.');
+  voz('Objetivo y descripción, en palabras del equipo', S.q1);
+  /* ---------- 2. Zona de estudio */
+  seccion('Zona de estudio');
+  const c = z.caja;
+  parrafo(`${z.desc} El área de trabajo es un rectángulo de ${fmt(tI,0)} ha (aprox. 15 x 15 km) entre ${Math.abs(c[1]).toFixed(3)}° y ${Math.abs(c[3]).toFixed(3)}° de latitud norte, y entre ${Math.abs(c[2]).toFixed(3)}° y ${Math.abs(c[0]).toFixed(3)}° de longitud oeste, en el municipio de ${z.municipio} y sus alrededores.`);
+  voz('Descripción del paisaje y cambios observados', S.q2);
+  par(S.img.rgbIni, S.img.rgbFin, 78, `Año ${S.ini}`, `Año ${S.fin}`, `Compuestos anuales Sentinel-2 en color verdadero (B4, B3, B2) de ${z.nombre}: ${S.ini} (izquierda) y ${S.fin} (derecha).`);
+  /* ---------- 3. Datos y métodos */
+  seccion('Datos y métodos');
+  const np = S.npol.map(num), npT = np.reduce((a,b)=>a+b,0);
+  parrafo(`Se usaron imágenes Sentinel-2 de nivel 2A (reflectancia de superficie, colección COPERNICUS/S2_SR_HARMONIZED) en Google Earth Engine. Para cada año (${S.ini} y ${S.fin}) se reunieron todas las escenas de enero a diciembre, se enmascararon nubes y sombras con Cloud Score+ (umbral 0.60) y se calculó la mediana de cada píxel, obteniendo un compuesto anual representativo. Se emplearon seis bandas: azul (B2, 490 nm), verde (B3, 560 nm), rojo (B4, 665 nm), infrarrojo cercano (B8, 842 nm) e infrarrojo de onda corta (B11, 1610 nm; B12, 2190 nm), además de los índices NDVI y NDWI calculados con ellas.`);
+  parrafo(`El equipo digitalizó ${npT} polígonos de entrenamiento (${np[0]} de vegetación, ${np[1]} de suelo desnudo o construido y ${np[2]} de agua) en sitios que no cambiaron entre ambos años. Con ellos se calcularon las firmas espectrales medias y se tomaron hasta 500 píxeles por clase: el 70 % entrenó un clasificador Random Forest de 100 árboles para cada año y el 30 % restante se reservó para evaluarlo. La superficie de cada clase se obtuvo sumando el área de sus píxeles (10 m x 10 m = 0.01 ha). Finalmente, el equipo calculó a mano la diferencia y la tasa de cambio de cada clase:`);
+  espacio(16); doc.setFillColor(244,247,249); doc.roundedRect(M, y-1, CW, 14, 2, 2, 'F'); fuente('bold',10.5,OSC);
+  doc.text(pdfSafe('Diferencia (ha) = A final - A inicial          Tasa de cambio (%) = (Diferencia / A inicial) x 100'), PW/2, y+7.6, {align:'center'}); y += 18;
+  figura(S.img.poligonos, 90, `Polígonos de entrenamiento dibujados por el equipo sobre el compuesto ${S.fin} (verde: vegetación; beige: suelo desnudo o construido; azul: agua).`, 45);
+  /* ---------- 4. Firmas espectrales */
+  seccion('Firmas espectrales', 75);
+  figura(S.img.firmas, 92, `Firmas espectrales medias de las tres clases en ${S.ini} (línea continua) y ${S.fin} (línea punteada), obtenidas de los polígonos de entrenamiento.`);
+  if (S.csv) {
+    const cab = S.csv[0], nC = cab.length, w0 = Math.min(40, CW*0.26), wr = (CW - w0)/Math.max(1,nC-1);
+    tabla(cab, S.csv.slice(1), [w0, ...Array(nC-1).fill(wr)], {tam: nC>8?8:9, titulo:'Reflectancia media por clase y banda (datos exportados de Earth Engine).'});
+  } else {
+    figura(S.img.tablaFirmas, 62, 'Tabla de datos de las firmas espectrales: reflectancia media ± desviación estándar por banda y número de píxeles.');
+  }
+  voz('Interpretación de las firmas', S.q3);
+  /* ---------- 5. Cobertura */
+  seccion('Cobertura del suelo estimada', 80);
+  par(S.img.cobIni, S.img.cobFin, 80, `Cobertura ${S.ini}`, `Cobertura ${S.fin}`, `Cobertura del suelo estimada con Random Forest para ${S.ini} y ${S.fin}.`, true);
+  tabla(['Clase', `${S.ini} (ha)`, `% del área`, `${S.fin} (ha)`, `% del área`],
+    [...CLASES.map((cl,i)=>[cl.nombre, fmt(A.ini[i]), fmt(A.ini[i]/tI*100,1), fmt(A.fin[i]), fmt(A.fin[i]/tF*100,1)]), ['Total', fmt(tI), '100.0', fmt(tF), '100.0']],
+    [62, 30, 25, 30, 25], {colores: CLASES.map(cl=>cl.color), totalUltima:true, titulo:`Superficie por clase en ${S.ini} y ${S.fin}.`});
+  /* ---------- 6. Cambio */
+  seccion(`Cambio de cobertura ${S.ini}-${S.fin}`);
+  parrafo(`La tabla ${tab+1} resume los cálculos del equipo, verificados automáticamente. La última columna divide la tasa de cambio entre los ${anios} años del periodo para expresar un cambio medio anual.`);
+  tabla(['Clase', `A ${S.ini} (ha)`, `A ${S.fin} (ha)`, 'Diferencia (ha)', 'Tasa (%)', '%/año'],
+    CLASES.map((cl,i)=>[cl.nombre, fmt(A.ini[i]), fmt(A.fin[i]), fmtS(num(S.dif[i])), isFinite(C[i].pct)?fmtS(num(S.pct[i])):'n. d.', isFinite(C[i].pct)?fmtS(num(S.pct[i])/anios):'n. d.']),
+    [52, 26, 26, 28, 20, 22], {colores: CLASES.map(cl=>cl.color), titulo:'Diferencia y tasa de cambio por clase (calculadas por el equipo).'});
+  const d = datosCambio(), wG = (CW-6)/2, gA = chartAreas(d, INK.claro, 420, 300, 1.3), gC = chartCambio(d, INK.claro, 420, 300, 1.3);
+  espacio(wG*gA.H/gA.W + 14);
+  aPDF(doc, gA, M, y, wG); aPDF(doc, gC, M+wG+6, y, wG); y += wG*gA.H/gA.W + 3;
+  pie(`Superficie por clase en ${S.ini} y ${S.fin} (izquierda) y tasa de cambio del periodo (derecha).`);
+  voz('Interpretación y conclusiones del equipo', S.q4);
+  /* ---------- 7. Evaluación */
+  if (S.img.evalMatriz || S.img.evalGrafica) {
+    seccion('Evaluación de la exactitud');
+    parrafo('La evaluación usó el 30 % de los píxeles de los polígonos que el clasificador no vio durante el entrenamiento. Por clase se reportan la sensibilidad, VP/(VP+FN), que disminuye con los falsos negativos; la especificidad, VN/(VN+FP); y la precisión, VP/(VP+FP), que disminuye con los falsos positivos. Como los píxeles de validación provienen de los mismos polígonos, estos valores tienden a ser optimistas.');
+    if (S.img.evalMatriz && S.img.evalGrafica) par(S.img.evalMatriz, S.img.evalGrafica, 75, 'Matrices de confusión y métricas', 'Gráfica de evaluación', 'Matrices de confusión y métricas por clase (filas: referencia; columnas: clasificación), y sensibilidad, especificidad y precisión por clase y año.', false, 45);
+    else if (S.img.evalMatriz) figura(S.img.evalMatriz, 70, 'Matrices de confusión y métricas por clase (filas: referencia; columnas: clasificación).', 45);
+    else figura(S.img.evalGrafica, 70, 'Sensibilidad, especificidad y precisión por clase y año.', 45);
+    if ((S.q5||'').trim()) voz('Comentario del equipo sobre la exactitud', S.q5);
+  }
+  /* ---------- Referencias */
+  espacio(30); y += 2; fuente('bold',10.5,OSC); doc.text('Referencias', M, y); y += 5;
+  ['Breiman, L. (2001). Random Forests. Machine Learning, 45, 5-32.',
+   'Drusch, M. et al. (2012). Sentinel-2: ESA\'s optical high-resolution mission for GMES operational services. Remote Sensing of Environment, 120, 25-36.',
+   'Gorelick, N. et al. (2017). Google Earth Engine: Planetary-scale geospatial analysis for everyone. Remote Sensing of Environment, 202, 18-27.',
+   'Pasquarella, V. J. et al. (2023). Comprehensive quality assessment of optical satellite imagery using weakly supervised video learning (Cloud Score+). CVPR Workshops.'
+  ].forEach(r=>parrafo(r, {tam:8.2, col:GRIS, despues:0.4}));
+
+  /* ---------- Encabezados y pies */
+  const n = doc.getNumberOfPages();
+  for (let p=1; p<=n; p++){
+    doc.setPage(p);
+    if (p>1) { fuente('normal',8,GRIS); doc.text(pdfSafe(`Cobertura del suelo y tasas de cambio · ${z.nombre}`), M, 12); doc.text(pdfSafe(`Equipo ${S.equipo}`), PW-M, 12, {align:'right'}); doc.setDrawColor(220,225,230); doc.setLineWidth(0.3); doc.line(M, 14.5, PW-M, 14.5); }
+    fuente('normal',8,GRIS); doc.text(`Página ${p} de ${n}`, PW-M, PH-9, {align:'right'}); doc.text('Datos: Copernicus Sentinel-2 (ESA) · Google Earth Engine', M, PH-9);
+  }
+  if (opciones.devolver) return doc;
+  const archivo = ('Reporte_A3_' + S.equipo + '_' + z.municipio).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9_-]+/g,'_').slice(0,80) + '.pdf';
+  doc.save(archivo);
+  return doc;
+}
+
+/* ================================================================ GUARDAR / CARGAR / BORRAR */
+$('#btnExport').onclick = ()=>{
+  const blob = new Blob([JSON.stringify(S)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = ('avance_A3_' + (S.equipo||'equipo')).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9_-]+/g,'_') + '.json';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  toast('Avance descargado. Guárdalo junto con tus imágenes.');
+};
+$('#btnImport').onclick = ()=>$('#fileImport').click();
+$('#fileImport').onchange = async e=>{
+  const f = e.target.files[0]; e.target.value=''; if(!f) return;
+  try { const d = JSON.parse(await f.text()); if (!d || d.v!==1) throw new Error('El archivo no es un avance de esta actividad'); S = fusionar(d); pintarTodo(); guardar(); toast('Avance cargado ✓'); }
+  catch(err){ toast('⚠ '+err.message, 5000); }
+};
+$('#btnReset').onclick = async ()=>{
+  if (!confirm('¿Borrar todos los datos de esta actividad guardados en este navegador? Esta acción no se puede deshacer.')) return;
+  S = DEF(); try { if (dbOK) await DB.del('estado'); } catch(e){}
+  pintarTodo(); toast('Datos borrados.');
+};
+
+/* ================================================================ ARRANQUE */
+function pintarTodo(){
+  $$('[data-field]').forEach(el=>{ el.value = S[el.dataset.field] ?? ''; });
+  $$('[data-npol]').forEach(el=>{ el.value = S.npol[+el.dataset.npol] ?? ''; });
+  ['q1','q2','q3','q4','q5'].forEach(contar);
+  pintarMiembros(); pintarTablas(); actualizarAnios();
+  $$('.upload').forEach(pintarUpload);
+  revisarAreas();
+  if (S.verificado) { graficasCambio(); $('#verifResumen').textContent='¡Todos los cálculos son correctos!'; $('#verifResumen').className='st ok'; CLASES.forEach((c,i)=>{ const st=$(`[data-st="${i}"]`); st.textContent='✓ Correcto'; st.className='st ok'; }); }
+  else { $('#verifResumen').textContent=''; $('#graficasCambio').hidden = true; }
+  marcarAvance(); ir(S.capitulo || 'inicio', false);
+}
+construirNav();
+(async ()=>{
+  try { await DB.open(); dbOK = true; const d = await DB.get('estado'); if (d) S = fusionar(d); }
+  catch(e){ dbOK = false; $('#saveState').textContent = 'Sin guardado automático: usa «Guardar avance»'; }
+  pintarTodo();
+})();
+</script>
+</body>
+</html>

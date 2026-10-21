@@ -50,9 +50,9 @@ var ANIOS_FIN = ['2023', '2024', '2025'];
 
 // Mismas clases y colores que en las actividades 1 y 2.
 var CLASES = [
-  {nombre: 'Vegetación', corto: 'Vegetación', color: '39b878'},
-  {nombre: 'Suelo desnudo o construido', corto: 'Suelo/construido', color: 'e2ae66'},
-  {nombre: 'Agua', corto: 'Agua', color: '4c9de8'}
+  {nombre: 'Vegetación', corto: 'Vegetación', abrev: 'Veg.', color: '39b878'},
+  {nombre: 'Suelo desnudo o construido', corto: 'Suelo/construido', abrev: 'Suelo', color: 'e2ae66'},
+  {nombre: 'Agua', corto: 'Agua', abrev: 'Agua', color: '4c9de8'}
 ];
 var COLORES = CLASES.map(function(c) { return c.color; });
 
@@ -85,14 +85,13 @@ function compuestoAnual(anio, region) {
   var inicio = ee.Date.fromYMD(anio, 1, 1);
   var col = S2.filterBounds(region)
     .filterDate(inicio, inicio.advance(1, 'year'))
-    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 70))
+    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 60))
+    .select(BANDAS)
     .linkCollection(CSPLUS, ['cs_cdf']);
-  var despejadas = col.map(function(img) {
+  // Una sola mediana de píxeles despejados: más ligera para la memoria de Earth Engine.
+  var refl = col.map(function(img) {
     return img.select(BANDAS).updateMask(img.select('cs_cdf').gte(UMBRAL_CS));
-  });
-  // Si algún píxel nunca estuvo despejado, se rellena con la mediana sin máscara.
-  var relleno = col.select(BANDAS).median();
-  var refl = despejadas.median().unmask(relleno)
+  }).median()
     .multiply(0.0001)
     .setDefaultProjection(PROY)
     .clip(region);
@@ -218,19 +217,23 @@ CLASES.forEach(function(c, i) {
   contadores.push(contador);
   panel.add(ui.Panel([
     ui.Label('', {backgroundColor: '#' + c.color, padding: '10px', margin: '10px 4px 0 0'}),
-    ui.Button({label: '✏ ' + c.nombre, onClick: function() { dibujar(i); }, style: {width: '250px'}}),
+    ui.Button({label: 'Dibujar: ' + c.corto, onClick: function() { dibujar(i); }, style: {width: '230px'}}),
     contador
   ], ui.Panel.Layout.flow('horizontal')));
 });
-var btnBorrar = ui.Button({label: '🗑 Borrar todos', onClick: function() { borrarTodo(); }});
+var btnBorrar = ui.Button({label: '🗑 Borrar todo', onClick: function() { borrarTodo(); }});
 panel.add(ui.Panel([
-  ui.Button({label: '⏹ Terminar de dibujar', onClick: function() { terminarDibujo(); }}),
-  ui.Button({label: '↶ Deshacer último', onClick: function() { deshacer(); }}),
+  ui.Button({label: '⏹ Terminar', onClick: function() { terminarDibujo(); }}),
+  ui.Button({label: '↶ Deshacer', onClick: function() { deshacer(); }}),
   btnBorrar
 ], ui.Panel.Layout.flow('horizontal')));
 var pistas = ui.Label('', ESTILO_NOTA);
 panel.add(pistas);
-panel.add(boton('💾 Respaldar polígonos (en Console)', function() { respaldar(); }));
+panel.add(boton('💾 Respaldar polígonos', function() { respaldar(); }));
+var cajaRespaldo = ui.Textbox({style: {stretch: 'horizontal', shown: false}});
+var notaRespaldo = ui.Label('', ESTILO_NOTA);
+panel.add(notaRespaldo);
+panel.add(cajaRespaldo);
 
 // --- Paso 3
 panel.add(ui.Label('3 · Firmas espectrales', ESTILO_PASO));
@@ -300,7 +303,7 @@ function cargar() {
   });
 
   descargasImg.clear();
-  descargasImg.add(ui.Label('Imágenes PNG para tu reporte (clic → se abre → guardar):', ESTILO_NOTA));
+  descargasImg.add(ui.Label('Imágenes PNG para tu reporte (clic → se abre en otra pestaña → guardar). Pueden tardar hasta 1-2 min:', ESTILO_NOTA));
   enlacePNG('Color verdadero ' + S.ini, S.compIni.visualize(VIS_RGB), descargasImg);
   enlacePNG('Color verdadero ' + S.fin, S.compFin.visualize(VIS_RGB), descargasImg);
   avisar('Imágenes ' + S.ini + ' y ' + S.fin + ' cargadas (pueden tardar unos segundos en verse).\n' +
@@ -330,7 +333,7 @@ function redibujarCapas() {
 function enlacePNG(etiqueta, imagenVis, destino) {
   var lbl = enlace('⏳ ' + etiqueta + ' (preparando...)');
   destino.add(lbl);
-  imagenVis.getThumbURL({region: S.aoi, dimensions: 1200, format: 'png'}, function(url, err) {
+  imagenVis.getThumbURL({region: S.aoi, dimensions: 1000, format: 'png'}, function(url, err) {
     if (err || !url) { lbl.setValue('⚠ ' + etiqueta + ': ' + err); return; }
     lbl.setValue('⬇ ' + etiqueta + ' (PNG)');
     lbl.setUrl(url);
@@ -430,10 +433,13 @@ function respaldar() {
     var datos = {zona: S.zona, ini: S.ini, fin: S.fin, poligonos: fc.features.map(function(f) {
       return {clase: f.properties.clase, tipo: f.geometry.type, coords: redondear(f.geometry.coordinates)};
     })};
-    print('RESPALDO DE POLÍGONOS. Copia TODO el texto de abajo (de { a }) y guárdalo en un archivo de texto. ' +
-      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» y pulsa Run.');
-    print(JSON.stringify(datos));
-    avisar('Respaldo listo en la pestaña Console (derecha). Cópialo y guárdalo.');
+    var texto = JSON.stringify(datos);
+    cajaRespaldo.setValue(texto);
+    cajaRespaldo.style().set('shown', true);
+    notaRespaldo.setValue('Haz clic en el cuadro de abajo, pulsa Ctrl+A y Ctrl+C, y pégalo en un archivo de texto. ' +
+      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» (línea 16) y pulsa Run.');
+    print('RESPALDO DE POLÍGONOS (' + datos.poligonos.length + ' polígonos)', texto);
+    avisar('Respaldo listo: cópialo del cuadro que apareció bajo el botón «Respaldar polígonos».');
   });
 }
 
@@ -505,7 +511,7 @@ function mostrarFirmas(r) {
             ticks: ONDAS.map(function(w, bi) { return {v: w, f: BANDAS[bi]}; })},
     vAxis: {title: 'Reflectancia (0–1)', viewWindow: {min: 0}},
     lineWidth: 2, pointSize: 6, series: series,
-    legend: {position: 'bottom', maxLines: 3},
+    legend: {position: 'top', maxLines: 3},
     chartArea: {left: 55, top: 40, width: '85%', height: '62%'}
   });
   grafica.style().set({height: '380px'});
@@ -601,7 +607,7 @@ function clasificar() {
   calcularSuperficies(ESCALA);
   var destino = ui.Panel();
   panelCobertura.add(destino);
-  destino.add(ui.Label('Mapas PNG para tu reporte:', ESTILO_NOTA));
+  destino.add(ui.Label('Mapas PNG para tu reporte (pueden tardar 1-2 min en abrir):', ESTILO_NOTA));
   enlacePNG('Cobertura ' + S.ini, S.clasIni.visualize(VIS_COB), destino);
   enlacePNG('Cobertura ' + S.fin, S.clasFin.visualize(VIS_COB), destino);
 }
@@ -675,11 +681,11 @@ function mostrarEvaluacion(r) {
     var m = r[p[0]];
     var total = 0;
     m.forEach(function(fila) { fila.forEach(function(v) { total += v; }); });
-    var cols = [{label: 'Referencia ↓ / Clasificado →', type: 'string'}];
-    CLASES.forEach(function(c) { cols.push({label: c.corto, type: 'number'}); });
+    var cols = [{label: 'Real ↓ / Mapa →', type: 'string'}];
+    CLASES.forEach(function(c) { cols.push({label: c.abrev, type: 'number'}); });
     cols.push({label: 'Total', type: 'number'});
     var filas = CLASES.map(function(c, i) {
-      var celdas = [{v: c.corto}];
+      var celdas = [{v: c.abrev}];
       m[i].forEach(function(v) { celdas.push({v: v}); });
       celdas.push({v: m[i].reduce(function(a, b) { return a + b; }, 0)});
       return {c: celdas};
@@ -692,14 +698,14 @@ function mostrarEvaluacion(r) {
       var fn = m[i].reduce(function(a, b) { return a + b; }, 0) - vp;
       var fp = m.reduce(function(a, fila) { return a + fila[i]; }, 0) - vp;
       var vn = total - vp - fn - fp;
-      metricas.push({clase: c.corto, anio: p[1], vp: vp, fn: fn, fp: fp, vn: vn,
+      metricas.push({clase: c.abrev, anio: p[1], vp: vp, fn: fn, fp: fp, vn: vn,
         sens: vp + fn ? 100 * vp / (vp + fn) : 0,
         esp: vn + fp ? 100 * vn / (vn + fp) : 0,
         prec: vp + fp ? 100 * vp / (vp + fp) : 0});
     });
   });
 
-  var tcols = ['Clase', 'Año', 'VP', 'FN', 'FP', 'VN', 'Sensibilidad %', 'Especificidad %', 'Precisión %']
+  var tcols = ['Clase', 'Año', 'VP', 'FN', 'FP', 'VN', 'Sens. %', 'Espec. %', 'Prec. %']
     .map(function(t, i) { return {label: t, type: i < 2 ? 'string' : 'number'}; });
   var tfilas = metricas.map(function(x) {
     return {c: [{v: x.clase}, {v: String(x.anio)}, {v: x.vp}, {v: x.fn}, {v: x.fp}, {v: x.vn},
@@ -782,6 +788,7 @@ function alternarComparacion() {
 // ---------------------------------------------------------------------
 mapa.setCenter(-96.45, 19.15, 9);
 actualizarContadores();
+if (typeof RESPALDO === 'string') RESPALDO = JSON.parse(RESPALDO);
 if (RESPALDO && RESPALDO.poligonos) {
   selZona.setValue(String(RESPALDO.zona), false);
   if (RESPALDO.ini) selIni.setValue(String(RESPALDO.ini), false);

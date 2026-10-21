@@ -215,13 +215,13 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
     <a class="button secondary" href="cobertura_tasas_cambio.js" download>⬇ Descargar archivo .js</a>
   </div>
   <details><summary>Ver el código (<span id="nLineas"></span> líneas)</summary><pre class="code" id="verCodigo"></pre></details>
-  <div class="callout bad"><b>¡Cuidado con Run!</b> Volver a pulsar Run reinicia la aplicación y <b>borra tus polígonos</b>. Usa <span class="ui">💾 Respaldar polígonos</span> (paso 2 del panel) y guarda el texto que aparece en la pestaña Console. Para recuperarlos, pégalo en la línea <code>var RESPALDO = null;</code> en lugar de <code>null</code> y pulsa Run.</div>
+  <div class="callout bad"><b>¡Cuidado con Run!</b> Volver a pulsar Run reinicia la aplicación y <b>borra tus polígonos</b>. Usa <span class="ui">💾 Respaldar polígonos</span> (paso 2 del panel): debajo aparece un cuadro con el texto del respaldo; haz clic en él, pulsa <kbd>Ctrl</kbd>+<kbd>A</kbd> y <kbd>Ctrl</kbd>+<kbd>C</kbd>, y pégalo en un archivo de texto. Para recuperarlos, pégalo en la línea <code>var RESPALDO = null;</code> en lugar de <code>null</code> y pulsa Run.</div>
   <h2>Así se ve la aplicación</h2>
   <div class="mock" aria-label="Esquema de la aplicación">
     <div class="p">
       <div style="font-weight:700;font-size:14px">Cobertura del suelo y tasas de cambio</div>
       <b>1 · Zona de trabajo y años</b><div class="b">3. Medellín de Bravo y… ▾</div><div class="b">2019 ▾ · 2025 ▾</div><div class="b">▶ Cargar imágenes</div><div class="b">Color verdadero ▾ · ⇆ Comparar</div>
-      <b>2 · Polígonos de entrenamiento</b><div class="b">✏ Vegetación · ✏ Suelo… · ✏ Agua</div>
+      <b>2 · Polígonos de entrenamiento</b><div class="b">Dibujar: Vegetación</div><div class="b">Dibujar: Suelo/construido</div><div class="b">Dibujar: Agua</div>
       <b>3 · Firmas espectrales</b><div class="b">📈 Calcular firmas espectrales</div>
       <b>4 · Cobertura y superficies</b><div class="b">🗺 Clasificar inicio y fin</div>
       <b>5 · Evaluación (opcional)</b><div class="b">✅ Evaluar exactitud</div>
@@ -264,7 +264,7 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
     <li>Pulsa <span class="ui">▶ Cargar imágenes</span>. Bajo el botón aparecerá cuántas escenas se usaron en cada compuesto anual. Las imágenes tardan unos segundos en dibujarse.</li>
     <li>Pulsa <span class="ui">⇆ Comparar inicio | fin (cortina)</span>. Arrastra la barra blanca: a la izquierda el año inicial, a la derecha el final. Cambia entre <span class="ui">Color verdadero</span> y <span class="ui">Falso color</span> (la vegetación se ve roja). Busca zonas nuevas de construcción, parcelas o cambios en el agua.</li>
     <li>Pulsa <span class="ui">↩ Volver al mapa de trabajo</span>. Con la casilla <span class="ui">Layers</span> del mapa también puedes prender y apagar cada año.</li>
-    <li>En el panel aparecen dos enlaces <span class="ui">⬇ Color verdadero … (PNG)</span>. Haz clic en cada uno: se abre la imagen en otra pestaña; guárdala con clic derecho → <i>Guardar imagen como…</i> (por ejemplo <code>rgb_2019.png</code>).</li>
+    <li>En el panel aparecen dos enlaces <span class="ui">⬇ Color verdadero … (PNG)</span>. Haz clic en cada uno: se abre la imagen en otra pestaña; guárdala con clic derecho → <i>Guardar imagen como…</i> (por ejemplo <code>rgb_2019.png</code>). La imagen puede tardar hasta 1 o 2 minutos en aparecer: Earth Engine la está calculando.</li>
   </ol>
   <div class="notebook">
     <div class="tag">Cuaderno · Zona de estudio</div>
@@ -288,12 +288,12 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
   <h1>Enseña al programa con tus polígonos</h1>
   <p class="lead">Un polígono de entrenamiento es un área que <b>tú</b> etiquetas porque estás segura o seguro de qué cobertura tiene.</p>
   <ol class="steps">
-    <li>Pulsa el botón de una clase, por ejemplo <span class="ui">✏ Vegetación</span>.</li>
+    <li>Pulsa el botón de una clase, por ejemplo <span class="ui">Dibujar: Vegetación</span>.</li>
     <li>Haz clic en el mapa para marcar cada vértice. Cierra el polígono con <b>doble clic</b> (o clic sobre el primer vértice).</li>
     <li>Puedes seguir dibujando más polígonos de esa misma clase. Para cambiar de clase, pulsa el botón de la otra clase.</li>
-    <li>Usa <span class="ui">↶ Deshacer último</span> si te equivocas, o <span class="ui">⏹ Terminar de dibujar</span> para mover el mapa y editar vértices.</li>
+    <li>Haz los clics con calma, uno por uno. Usa <span class="ui">↶ Deshacer</span> si te equivocas, o <span class="ui">⏹ Terminar</span> para mover el mapa y editar vértices.</li>
     <li>Junto a cada botón verás el número de polígonos; se pone verde al llegar a 3.</li>
-    <li>Al terminar, pulsa <span class="ui">💾 Respaldar polígonos</span> y guarda el texto de la pestaña Console en un archivo de texto.</li>
+    <li>Al terminar, pulsa <span class="ui">💾 Respaldar polígonos</span>. Debajo aparece un cuadro con el respaldo: haz clic en él, <kbd>Ctrl</kbd>+<kbd>A</kbd>, <kbd>Ctrl</kbd>+<kbd>C</kbd>, y pégalo en un archivo de texto.</li>
   </ol>
   <div class="grid2">
     <article><b>Reglas de oro</b>
@@ -481,12 +481,13 @@ footer.navbar span{color:var(--muted);font-size:13px;text-align:center}
     <tr><th>Situación</th><th>Qué hacer</th></tr>
     <tr><td>Error de proyecto o «not registered»</td><td>Revisa tu proyecto en el ícono de perfil del editor → <i>Change Cloud Project</i>. Consulta el capítulo «Habilitar acceso» de la actividad 1.</td></tr>
     <tr><td>Las imágenes no aparecen o salen grises</td><td>Espera 10–30 s y acerca el mapa al rectángulo blanco. Revisa la pestaña Console por mensajes en rojo.</td></tr>
+    <tr><td>Console: «Tile error: memory capacity exceeded»</td><td>Un cuadro del mapa no se pudo dibujar porque Earth Engine estaba ocupado. Mueve un poco el mapa o cambia el zoom para que se vuelva a pedir. No afecta las firmas, la clasificación ni las superficies.</td></tr>
     <tr><td>Perdí mis polígonos</td><td>Si tenías respaldo, pégalo en <code>var RESPALDO = null;</code> (en lugar de <code>null</code>) y pulsa Run. Si no, vuelve a dibujarlos.</td></tr>
     <tr><td>«Necesitas al menos 2 polígonos de…»</td><td>Revisa los contadores junto a cada clase. Para clasificar se piden 2 por clase; para el reporte recomendamos 3 o más.</td></tr>
     <tr><td>«Pocos píxeles en…»</td><td>Tus polígonos son muy pequeños o están fuera del rectángulo. Dibuja algunos más grandes.</td></tr>
     <tr><td>La clasificación o las superficies tardan mucho</td><td>Espera hasta 2 minutos. Si sale error, el programa reintenta con píxeles de 20 m. Si vuelve a fallar, espera un minuto y pulsa otra vez <span class="ui">Clasificar</span>.</td></tr>
     <tr><td>El mapa confunde agua con sombras o asfalto</td><td>Agrega polígonos de suelo/construido en esas calles o techos oscuros y de vegetación en laderas sombreadas; vuelve a clasificar.</td></tr>
-    <tr><td>El enlace PNG no abre</td><td>Los enlaces caducan. Vuelve a pulsar el botón del paso correspondiente para generarlos de nuevo.</td></tr>
+    <tr><td>El enlace PNG tarda o no abre</td><td>La pestaña puede tardar 1–2 minutos mientras Earth Engine calcula la imagen; espera. Si da error, los enlaces caducan: vuelve a pulsar el botón del paso correspondiente para generarlos de nuevo.</td></tr>
     <tr><td>«Revisa» en la verificación</td><td>Comprueba el orden (final − inicial), el signo y que dividiste entre la superficie <b>inicial</b>. Usa dos decimales.</td></tr>
     <tr><td>El total de hectáreas no coincide con el área de la zona</td><td>Verifica que elegiste la misma zona aquí y en Earth Engine, y que copiaste bien cada número.</td></tr>
     <tr><td>Mi avance desapareció</td><td>Se guarda por navegador y computadora. Usa <span class="ui">📂 Cargar avance</span> con tu archivo .json.</td></tr>
@@ -565,9 +566,9 @@ var ANIOS_FIN = ['2023', '2024', '2025'];
 
 // Mismas clases y colores que en las actividades 1 y 2.
 var CLASES = [
-  {nombre: 'Vegetación', corto: 'Vegetación', color: '39b878'},
-  {nombre: 'Suelo desnudo o construido', corto: 'Suelo/construido', color: 'e2ae66'},
-  {nombre: 'Agua', corto: 'Agua', color: '4c9de8'}
+  {nombre: 'Vegetación', corto: 'Vegetación', abrev: 'Veg.', color: '39b878'},
+  {nombre: 'Suelo desnudo o construido', corto: 'Suelo/construido', abrev: 'Suelo', color: 'e2ae66'},
+  {nombre: 'Agua', corto: 'Agua', abrev: 'Agua', color: '4c9de8'}
 ];
 var COLORES = CLASES.map(function(c) { return c.color; });
 
@@ -600,14 +601,13 @@ function compuestoAnual(anio, region) {
   var inicio = ee.Date.fromYMD(anio, 1, 1);
   var col = S2.filterBounds(region)
     .filterDate(inicio, inicio.advance(1, 'year'))
-    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 70))
+    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 60))
+    .select(BANDAS)
     .linkCollection(CSPLUS, ['cs_cdf']);
-  var despejadas = col.map(function(img) {
+  // Una sola mediana de píxeles despejados: más ligera para la memoria de Earth Engine.
+  var refl = col.map(function(img) {
     return img.select(BANDAS).updateMask(img.select('cs_cdf').gte(UMBRAL_CS));
-  });
-  // Si algún píxel nunca estuvo despejado, se rellena con la mediana sin máscara.
-  var relleno = col.select(BANDAS).median();
-  var refl = despejadas.median().unmask(relleno)
+  }).median()
     .multiply(0.0001)
     .setDefaultProjection(PROY)
     .clip(region);
@@ -733,19 +733,23 @@ CLASES.forEach(function(c, i) {
   contadores.push(contador);
   panel.add(ui.Panel([
     ui.Label('', {backgroundColor: '#' + c.color, padding: '10px', margin: '10px 4px 0 0'}),
-    ui.Button({label: '✏ ' + c.nombre, onClick: function() { dibujar(i); }, style: {width: '250px'}}),
+    ui.Button({label: 'Dibujar: ' + c.corto, onClick: function() { dibujar(i); }, style: {width: '230px'}}),
     contador
   ], ui.Panel.Layout.flow('horizontal')));
 });
-var btnBorrar = ui.Button({label: '🗑 Borrar todos', onClick: function() { borrarTodo(); }});
+var btnBorrar = ui.Button({label: '🗑 Borrar todo', onClick: function() { borrarTodo(); }});
 panel.add(ui.Panel([
-  ui.Button({label: '⏹ Terminar de dibujar', onClick: function() { terminarDibujo(); }}),
-  ui.Button({label: '↶ Deshacer último', onClick: function() { deshacer(); }}),
+  ui.Button({label: '⏹ Terminar', onClick: function() { terminarDibujo(); }}),
+  ui.Button({label: '↶ Deshacer', onClick: function() { deshacer(); }}),
   btnBorrar
 ], ui.Panel.Layout.flow('horizontal')));
 var pistas = ui.Label('', ESTILO_NOTA);
 panel.add(pistas);
-panel.add(boton('💾 Respaldar polígonos (en Console)', function() { respaldar(); }));
+panel.add(boton('💾 Respaldar polígonos', function() { respaldar(); }));
+var cajaRespaldo = ui.Textbox({style: {stretch: 'horizontal', shown: false}});
+var notaRespaldo = ui.Label('', ESTILO_NOTA);
+panel.add(notaRespaldo);
+panel.add(cajaRespaldo);
 
 // --- Paso 3
 panel.add(ui.Label('3 · Firmas espectrales', ESTILO_PASO));
@@ -815,7 +819,7 @@ function cargar() {
   });
 
   descargasImg.clear();
-  descargasImg.add(ui.Label('Imágenes PNG para tu reporte (clic → se abre → guardar):', ESTILO_NOTA));
+  descargasImg.add(ui.Label('Imágenes PNG para tu reporte (clic → se abre en otra pestaña → guardar). Pueden tardar hasta 1-2 min:', ESTILO_NOTA));
   enlacePNG('Color verdadero ' + S.ini, S.compIni.visualize(VIS_RGB), descargasImg);
   enlacePNG('Color verdadero ' + S.fin, S.compFin.visualize(VIS_RGB), descargasImg);
   avisar('Imágenes ' + S.ini + ' y ' + S.fin + ' cargadas (pueden tardar unos segundos en verse).\n' +
@@ -845,7 +849,7 @@ function redibujarCapas() {
 function enlacePNG(etiqueta, imagenVis, destino) {
   var lbl = enlace('⏳ ' + etiqueta + ' (preparando...)');
   destino.add(lbl);
-  imagenVis.getThumbURL({region: S.aoi, dimensions: 1200, format: 'png'}, function(url, err) {
+  imagenVis.getThumbURL({region: S.aoi, dimensions: 1000, format: 'png'}, function(url, err) {
     if (err || !url) { lbl.setValue('⚠ ' + etiqueta + ': ' + err); return; }
     lbl.setValue('⬇ ' + etiqueta + ' (PNG)');
     lbl.setUrl(url);
@@ -945,10 +949,13 @@ function respaldar() {
     var datos = {zona: S.zona, ini: S.ini, fin: S.fin, poligonos: fc.features.map(function(f) {
       return {clase: f.properties.clase, tipo: f.geometry.type, coords: redondear(f.geometry.coordinates)};
     })};
-    print('RESPALDO DE POLÍGONOS. Copia TODO el texto de abajo (de { a }) y guárdalo en un archivo de texto. ' +
-      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» y pulsa Run.');
-    print(JSON.stringify(datos));
-    avisar('Respaldo listo en la pestaña Console (derecha). Cópialo y guárdalo.');
+    var texto = JSON.stringify(datos);
+    cajaRespaldo.setValue(texto);
+    cajaRespaldo.style().set('shown', true);
+    notaRespaldo.setValue('Haz clic en el cuadro de abajo, pulsa Ctrl+A y Ctrl+C, y pégalo en un archivo de texto. ' +
+      'Para recuperarlo: pégalo en lugar de null en «var RESPALDO = null;» (línea 16) y pulsa Run.');
+    print('RESPALDO DE POLÍGONOS (' + datos.poligonos.length + ' polígonos)', texto);
+    avisar('Respaldo listo: cópialo del cuadro que apareció bajo el botón «Respaldar polígonos».');
   });
 }
 
@@ -1020,7 +1027,7 @@ function mostrarFirmas(r) {
             ticks: ONDAS.map(function(w, bi) { return {v: w, f: BANDAS[bi]}; })},
     vAxis: {title: 'Reflectancia (0–1)', viewWindow: {min: 0}},
     lineWidth: 2, pointSize: 6, series: series,
-    legend: {position: 'bottom', maxLines: 3},
+    legend: {position: 'top', maxLines: 3},
     chartArea: {left: 55, top: 40, width: '85%', height: '62%'}
   });
   grafica.style().set({height: '380px'});
@@ -1116,7 +1123,7 @@ function clasificar() {
   calcularSuperficies(ESCALA);
   var destino = ui.Panel();
   panelCobertura.add(destino);
-  destino.add(ui.Label('Mapas PNG para tu reporte:', ESTILO_NOTA));
+  destino.add(ui.Label('Mapas PNG para tu reporte (pueden tardar 1-2 min en abrir):', ESTILO_NOTA));
   enlacePNG('Cobertura ' + S.ini, S.clasIni.visualize(VIS_COB), destino);
   enlacePNG('Cobertura ' + S.fin, S.clasFin.visualize(VIS_COB), destino);
 }
@@ -1190,11 +1197,11 @@ function mostrarEvaluacion(r) {
     var m = r[p[0]];
     var total = 0;
     m.forEach(function(fila) { fila.forEach(function(v) { total += v; }); });
-    var cols = [{label: 'Referencia ↓ / Clasificado →', type: 'string'}];
-    CLASES.forEach(function(c) { cols.push({label: c.corto, type: 'number'}); });
+    var cols = [{label: 'Real ↓ / Mapa →', type: 'string'}];
+    CLASES.forEach(function(c) { cols.push({label: c.abrev, type: 'number'}); });
     cols.push({label: 'Total', type: 'number'});
     var filas = CLASES.map(function(c, i) {
-      var celdas = [{v: c.corto}];
+      var celdas = [{v: c.abrev}];
       m[i].forEach(function(v) { celdas.push({v: v}); });
       celdas.push({v: m[i].reduce(function(a, b) { return a + b; }, 0)});
       return {c: celdas};
@@ -1207,14 +1214,14 @@ function mostrarEvaluacion(r) {
       var fn = m[i].reduce(function(a, b) { return a + b; }, 0) - vp;
       var fp = m.reduce(function(a, fila) { return a + fila[i]; }, 0) - vp;
       var vn = total - vp - fn - fp;
-      metricas.push({clase: c.corto, anio: p[1], vp: vp, fn: fn, fp: fp, vn: vn,
+      metricas.push({clase: c.abrev, anio: p[1], vp: vp, fn: fn, fp: fp, vn: vn,
         sens: vp + fn ? 100 * vp / (vp + fn) : 0,
         esp: vn + fp ? 100 * vn / (vn + fp) : 0,
         prec: vp + fp ? 100 * vp / (vp + fp) : 0});
     });
   });
 
-  var tcols = ['Clase', 'Año', 'VP', 'FN', 'FP', 'VN', 'Sensibilidad %', 'Especificidad %', 'Precisión %']
+  var tcols = ['Clase', 'Año', 'VP', 'FN', 'FP', 'VN', 'Sens. %', 'Espec. %', 'Prec. %']
     .map(function(t, i) { return {label: t, type: i < 2 ? 'string' : 'number'}; });
   var tfilas = metricas.map(function(x) {
     return {c: [{v: x.clase}, {v: String(x.anio)}, {v: x.vp}, {v: x.fn}, {v: x.fp}, {v: x.vn},
@@ -1297,6 +1304,7 @@ function alternarComparacion() {
 // ---------------------------------------------------------------------
 mapa.setCenter(-96.45, 19.15, 9);
 actualizarContadores();
+if (typeof RESPALDO === 'string') RESPALDO = JSON.parse(RESPALDO);
 if (RESPALDO && RESPALDO.poligonos) {
   selZona.setValue(String(RESPALDO.zona), false);
   if (RESPALDO.ini) selIni.setValue(String(RESPALDO.ini), false);

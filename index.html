@@ -86,6 +86,7 @@ input.numin{text-align:right;font-variant-numeric:tabular-nums;max-width:170px}
 .upload .ttl{font-weight:650;font-size:14px}
 .upload .ttl em{font-style:normal;font-weight:400;color:var(--muted);font-size:12px}
 .upload .drop{flex:1;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;border-radius:8px;min-height:110px;padding:8px}
+.upload .muestra{display:flex;flex-direction:column;align-items:center;opacity:.45;margin-bottom:6px}.upload .muestra small{font-size:11px}
 .upload .drop img{max-width:100%;max-height:170px;border-radius:6px;background:#fff}
 .upload .meta{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
 .upload .meta button{padding:3px 8px;font-size:12px}
@@ -297,7 +298,7 @@ header .brand{display:flex;align-items:center}
       <div class="upload" data-img="rgbFin"></div>
     </div>
     <label class="f" for="f_q2">Pregunta 2 · ¿Qué zona eligieron y por qué? Describan el paisaje y lo que observan al comparar las imágenes de ambos años. <small>(¿ciudad, cultivos, manglar, ríos? ¿qué cambios notan a simple vista?)</small></label>
-    <textarea id="f_q2" data-field="q2" maxlength="700"></textarea><div class="count" data-count="q2"></div>
+    <textarea id="f_q2" placeholder="Ej. Elegimos Veracruz y Boca del Río porque ahí vivimos. Hay ciudad y puerto al este, pastizales y humedales al oeste y mar. Al comparar con la cortina vemos fraccionamientos nuevos al sur y menos vegetación en la periferia." data-field="q2" maxlength="700"></textarea><div class="count" data-count="q2"></div>
   </div>
 </section>
 
@@ -365,12 +366,12 @@ header .brand{display:flex;align-items:center}
     </div>
     <label class="f">Píxeles de entrenamiento seleccionados por clase <small>(tabla «Píxeles de entrenamiento por clase» del panel)</small></label>
     <div class="grid3" style="margin:4px 0">
-      <div><label class="f" for="f_px0" style="font-weight:400"><span class="swatch" style="background:var(--veg)"></span>Vegetación</label><input type="number" min="0" id="f_px0" data-npx="0" class="numin"></div>
-      <div><label class="f" for="f_px1" style="font-weight:400"><span class="swatch" style="background:var(--soil)"></span>Suelo desnudo o construido</label><input type="number" min="0" id="f_px1" data-npx="1" class="numin"></div>
-      <div><label class="f" for="f_px2" style="font-weight:400"><span class="swatch" style="background:var(--water)"></span>Agua</label><input type="number" min="0" id="f_px2" data-npx="2" class="numin"></div>
+      <div><label class="f" for="f_px0" style="font-weight:400"><span class="swatch" style="background:var(--veg)"></span>Vegetación</label><input type="number" min="0" id="f_px0" data-npx="0" class="numin" placeholder="Ej. 1520"></div>
+      <div><label class="f" for="f_px1" style="font-weight:400"><span class="swatch" style="background:var(--soil)"></span>Suelo desnudo o construido</label><input type="number" min="0" id="f_px1" data-npx="1" class="numin" placeholder="Ej. 3210"></div>
+      <div><label class="f" for="f_px2" style="font-weight:400"><span class="swatch" style="background:var(--water)"></span>Agua</label><input type="number" min="0" id="f_px2" data-npx="2" class="numin" placeholder="Ej. 780"></div>
     </div>
     <label class="f" for="f_q3">Pregunta 3 · ¿Cómo eligieron sus polígonos y qué les dicen las firmas espectrales y la varianza? <small>(¿en qué bandas se separan más las clases? ¿qué clase tiene mayor varianza y por qué sería más difícil de clasificar?)</small></label>
-    <textarea id="f_q3" data-field="q3" maxlength="700"></textarea><div class="count" data-count="q3"></div>
+    <textarea id="f_q3" placeholder="Ej. Dibujamos polígonos en sitios que no cambiaron entre años: potreros al oeste, el centro de la ciudad y mar abierto. El agua se separa en B8 (NIR) y la vegetación tiene NIR alto y rojo bajo. Suelo/construido tiene la mayor varianza porque mezcla techos, calles y arena." data-field="q3" maxlength="700"></textarea><div class="count" data-count="q3"></div>
   </div>
 </section>
 
@@ -462,7 +463,7 @@ header .brand{display:flex;align-items:center}
       <div class="upload" data-img="evalGrafica" data-opt="1"></div>
     </div>
     <label class="f" for="f_q5">Pregunta 5 (opcional) · ¿Qué clase se confundió más y con cuál? ¿Por qué creen que ocurrió?</label>
-    <textarea id="f_q5" data-field="q5" maxlength="450" style="min-height:90px"></textarea><div class="count" data-count="q5"></div>
+    <textarea id="f_q5" placeholder="Ej. Suelo/construido se confundió con vegetación en zonas de pasto seco, porque ambos reflejan mucho en SWIR." data-field="q5" maxlength="450" style="min-height:90px"></textarea><div class="count" data-count="q5"></div>
   </div>
 </section>
 
@@ -474,9 +475,9 @@ header .brand{display:flex;align-items:center}
   <div class="notebook">
     <div class="tag">Cuaderno · Descripción general</div>
     <label class="f" for="f_q1">Pregunta 1 · ¿Qué hicieron en esta actividad y para qué sirve conocer la tasa de cambio de la cobertura del suelo? <small>(pensando en la agronomía, el agua o la ciudad)</small></label>
-    <textarea id="f_q1" data-field="q1" maxlength="700"></textarea><div class="count" data-count="q1"></div>
+    <textarea id="f_q1" placeholder="Ej. Estimamos con Sentinel-2 y Random Forest cuántas hectáreas de vegetación, suelo/construido y agua había en 2019 y en 2025 en Veracruz–Boca del Río, y calculamos su tasa de cambio. Conocerla ayuda a planear el uso agrícola del suelo, cuidar cuerpos de agua y anticipar el crecimiento urbano." data-field="q1" maxlength="700"></textarea><div class="count" data-count="q1"></div>
     <label class="f" for="f_q4">Pregunta 4 · ¿Qué cambió, cuánto y por qué? <small>(¿qué clase creció y cuál disminuyó? ¿qué procesos lo explican: urbanización, agricultura, sequía, inundaciones? ¿qué errores del mapa podrían afectar sus números?)</small></label>
-    <textarea id="f_q4" data-field="q4" maxlength="900"></textarea><div class="count" data-count="q4"></div>
+    <textarea id="f_q4" placeholder="Ej. La vegetación disminuyó 708.55 ha (−6.53 %) y el suelo/construido creció 489.48 ha (7.04 %), por la urbanización de la periferia. El agua varió poco; parte del cambio puede ser error del mapa por sombras o agua turbia." data-field="q4" maxlength="900"></textarea><div class="count" data-count="q4"></div>
   </div>
 </section>
 
@@ -837,6 +838,8 @@ var selComparar = control(ui.Select({items: ['Color verdadero', 'Falso color', '
   onChange: function() { if (S.comparando) actualizarComparacion(); }}));
 var btnComparar = boton('⇆ Comparar inicio | fin (cortina)', function() { alternarComparacion(); });
 panel.add(ui.Panel([selComparar, btnComparar], ui.Panel.Layout.flow('horizontal')));
+panel.add(ui.Button({label: '🎯 Centrar el área de trabajo en el mapa', onClick: function() { centrarZona(); },
+  style: {stretch: 'horizontal'}}));
 var descargasImg = ui.Panel();
 panel.add(descargasImg);
 
@@ -1758,13 +1761,27 @@ function parseCSV(txt){
   f.push(c); if (f.some(x=>x.trim()!=='')) filas.push(f);
   return filas.slice(0,16).map(r=>r.slice(0,10).map(x=>{ const t=x.trim(); const n=Number(t); return (t!=='' && isFinite(n) && /\d/.test(t)) ? (Math.abs(n)<10 && !Number.isInteger(n) ? n.toFixed(4) : String(+n.toFixed(4))) : t; }));
 }
+// Imágenes de muestra (esquemáticas) para guiar qué subir en cada casilla
+function muestraImg(k){
+  const V='#39b878',S='#e2ae66',A='#4c9de8';
+  const sv=b=>'<svg viewBox="0 0 120 70" width="120" height="70" aria-hidden="true"><rect width="120" height="70" rx="4" fill="#fff"/>'+b+'</svg>';
+  const mapa=(c)=>'<rect x="4" y="4" width="112" height="62" fill="'+c[0]+'"/><path d="M60 4h56v62H78q-14-20 0-34z" fill="'+c[1]+'"/><path d="M95 4h21v62H104q-8-30-9-62z" fill="'+c[2]+'"/>';
+  const lineas='<path d="M8 60H114M8 6V60" stroke="#999"/><polyline points="12,50 30,46 48,48 66,14 90,18 110,30" fill="none" stroke="'+V+'" stroke-width="2"/><polyline points="12,40 30,36 48,32 66,28 90,26 110,30" fill="none" stroke="'+S+'" stroke-width="2"/><polyline points="12,48 30,50 48,54 66,57 90,58 110,58" fill="none" stroke="'+A+'" stroke-width="2"/>';
+  const barras=(cs)=>'<path d="M8 62H114" stroke="#999"/>'+[0,1,2,3,4,5].map(i=>cs.map((c,j)=>'<rect x="'+(12+i*17+j*4)+'" y="'+(62-((i*7+j*13)%30+12))+'" width="4" height="'+((i*7+j*13)%30+12)+'" fill="'+c+'"/>').join('')).join('');
+  const tabla='<g stroke="#bbb">'+[0,1,2,3,4,5].map(i=>'<line x1="6" x2="114" y1="'+(8+i*11)+'" y2="'+(8+i*11)+'"/>').join('')+[0,1,2,3,4].map(i=>'<line y1="8" y2="63" x1="'+(6+i*27)+'" x2="'+(6+i*27)+'"/>').join('')+'</g><rect x="6" y="8" width="108" height="11" fill="#ddd" opacity=".6"/>';
+  const m={rgbIni:mapa(['#6f8f5a','#b9b2a2','#3d6f8e']), rgbFin:mapa(['#6a8a56','#c4bcab','#3d6f8e']),
+    poligonos:mapa(['#6f8f5a','#b9b2a2','#3d6f8e'])+'<rect x="18" y="16" width="12" height="10" fill="'+V+'" stroke="#fff"/><rect x="70" y="40" width="12" height="10" fill="'+S+'" stroke="#fff"/><rect x="102" y="20" width="10" height="10" fill="'+A+'" stroke="#fff"/>',
+    firmas:lineas, tablaFirmas:tabla, cobIni:mapa([V,S,A]), cobFin:mapa([V,S,A]).replace('M60 4h56','M50 4h66'),
+    evalMatriz:tabla, evalGrafica:barras(['#2f6fb0','#e08a1e','#8a4fbf']), varianza:barras([V,S,A])};
+  return sv(m[k]||tabla);
+}
 function pintarUpload(box){
   const k = box.dataset.img, d = S.img[k], csv = (k==='tablaFirmas' && S.csv);
   box.classList.toggle('has', !!(d||csv));
   let cuerpo;
   if (d) cuerpo = `<img src="${d.src}" alt="${esc(IMGS[k].t)}">`;
   else if (csv) cuerpo = `<div style="overflow:auto;max-height:170px;width:100%"><table>${csv.map((r,i)=>`<tr>${r.map(x=>i?`<td>${esc(x)}</td>`:`<th>${esc(x)}</th>`).join('')}</tr>`).join('')}</table></div>`;
-  else cuerpo = `<span>📎 Haz clic o arrastra aquí<br>${box.dataset.csv?'PNG, JPG o CSV':'PNG o JPG'}</span>`;
+  else cuerpo = `<span class="muestra">${muestraImg(k)}<small>Ejemplo</small></span><span>📎 Haz clic o arrastra aquí<br>${box.dataset.csv?'PNG, JPG o CSV':'PNG o JPG'}</span>`;
   box.innerHTML = `<div class="ttl">${tituloImg(k)}</div>
     <div class="drop" tabindex="0" role="button" aria-label="Subir ${esc(IMGS[k].t)}">${cuerpo}</div>
     <div class="meta"><span>${d?esc(d.nombre):(csv?'Tabla CSV':'Sin archivo')}</span>${(d||csv)?'<button class="secondary" type="button" data-quitar>Quitar</button>':''}</div>

@@ -276,6 +276,8 @@ var selComparar = control(ui.Select({items: ['Color verdadero', 'Falso color', '
   onChange: function() { if (S.comparando) actualizarComparacion(); }}));
 var btnComparar = boton('⇆ Comparar inicio | fin (cortina)', function() { alternarComparacion(); });
 panel.add(ui.Panel([selComparar, btnComparar], ui.Panel.Layout.flow('horizontal')));
+panel.add(ui.Button({label: '🎯 Centrar el área de trabajo en el mapa', onClick: function() { centrarZona(); },
+  style: {stretch: 'horizontal'}}));
 var descargasImg = ui.Panel();
 panel.add(descargasImg);
 
